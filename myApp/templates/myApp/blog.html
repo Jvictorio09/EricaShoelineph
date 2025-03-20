@@ -1,0 +1,75 @@
+{% extends 'myapp/base.html' %}
+{% block content %}
+{% load static %}
+
+<div class="wrapper">
+    <main class="main-content">
+        <div class="page-header-area" style="background-image: url('{% static "assets/img/photos/1920x390.png" %}');">
+            <div class="container pt--0 pb--0">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="page-header-content">
+                            <h2 class="title" data-aos="fade-down" data-aos-duration="1000">Blog</h2>
+                            <nav class="breadcrumb-area" data-aos="fade-down" data-aos-duration="1200">
+                                <ul class="breadcrumb">
+                                    <li><a href="{% url 'home' %}">Home</a></li>
+                                    <li class="breadcrumb-sep">//</li>
+                                    <li>Blog</li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <section class="blog-area blog-inner-area">
+            <div class="container">
+                <div class="row">
+                    {% for blog in blogs %}
+                        <div class="col-md-6 col-lg-4">
+                            <!--== Start Blog Item ==-->
+                            <div class="post-item">
+                                <div class="inner-content">
+                                    <div class="thumb">
+                                        <a href="{% url 'blog_details' slug=blog.slug %}">
+                                            <img src="{{ blog.image.url }}" width="370" height="260" alt="{{ blog.title }}">
+                                        </a>
+                                    </div>
+                                    <div class="content">
+                                        <div class="meta-post">
+                                            <ul>
+                                                <li class="post-date">
+                                                    <i class="fa fa-calendar"></i>
+                                                    <span>{{ blog.published_date|date:"d M, Y" }}</span>
+                                                </li>
+                                                <li class="author-info">
+                                                    <i class="fa fa-user"></i>
+                                                    <span>{{ blog.author }}</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <h4 class="title">
+                                            <a href="{% url 'blog_details' slug=blog.slug %}">{{ blog.title }}</a>
+                                        </h4>
+                                        <a class="post-btn" href="{% url 'blog_details' slug=blog.slug %}">Read More</a>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                            <!--== End Blog Item ==-->
+                        </div>
+                    {% empty %}
+                        <div class="col-12 text-center">
+                            <p>No blog posts available at the moment.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+        
+    </main>
+
+
+</div>
+
+{% endblock %}

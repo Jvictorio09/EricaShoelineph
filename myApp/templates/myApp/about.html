@@ -1,0 +1,276 @@
+{% extends 'myapp/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="wrapper">    
+<main class="main-content">
+    <!--== Start Page Header Area Wrapper ==-->
+    <div class="page-header-area" style="background-image: url('{% static 'assets/img/photos/1920x390.png' %}');">
+      <div class="container pt--0 pb--0">
+        <div class="row">
+          <div class="col-12">
+            <div class="page-header-content">
+              <h2 class="title" data-aos="fade-down" data-aos-duration="1000">About Us</h2>
+              <nav class="breadcrumb-area" data-aos="fade-down" data-aos-duration="1200">
+                <ul class="breadcrumb">
+                  <li><a href="{% url 'home' %}">Home</a></li>
+                  <li class="breadcrumb-sep">//</li>
+                  <li>About Us</li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--== End Page Header Area Wrapper ==-->
+
+    <!--== Start About Area Wrapper ==-->
+    <section class="about-area about-default-wrapper">
+      <div class="container">
+        <div class="about-item position-relative">
+          <div class="row align-items-center">
+              <!-- First Section: Image Left, Text Right -->
+              <div class="col-lg-6">
+                  <div class="about-thumb">
+                      <div class="shape-one scene">
+                          <span class="scene-layer" data-depth=".2">
+                              <img src="{% static 'assets/img/about/1.webp' %}" width="570" height="368" alt="About Us">
+                          </span>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-lg-6">
+                  <div class="about-content">
+                      <h4 class="sub-title">ERICA Shoeline PH</h4>
+                      <h3 class="title">Timeless Elegance in Every Step</h3>
+                      <p class="desc">
+                          ERICA Shoeline PH was established in 2023 with a clear vision—to redefine femininity through timeless and elegant footwear. 
+                          What began as a simple idea soon flourished into a brand that embodies sophistication, comfort, and quality.
+                      </p>
+                  </div>
+              </div>
+          </div>
+      
+          <div class="row align-items-center flex-row-reverse">
+              <!-- Second Section: Text Left, Image Right -->
+              <div class="col-lg-6">
+                  <div class="about-thumb">
+                      <div class="shape-one scene">
+                          <span class="scene-layer" data-depth=".2">
+                              <img src="{% static 'assets/img/about/1.webp' %}" width="570" height="368" alt="Craftsmanship">
+                          </span>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-lg-6">
+                  <div class="about-content">
+                      <p class="desc">
+                          From the very beginning, our commitment has been to craftsmanship and design. Each pair is thoughtfully made, blending classic aesthetics with contemporary trends, 
+                          ensuring that our customers experience both luxury and comfort.
+                      </p>
+                  </div>
+              </div>
+          </div>
+      
+          <div class="row align-items-center">
+              <!-- Third Section: Image Left, Text Right -->
+              <div class="col-lg-6">
+                  <div class="about-thumb">
+                      <div class="shape-one scene">
+                          <span class="scene-layer" data-depth=".2">
+                              <img src="{% static 'assets/img/about/1.webp' %}" width="570" height="368" alt="Feminine Strength">
+                          </span>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-lg-6">
+                  <div class="about-content">
+                      <p class="desc">
+                          As we continue to grow, our passion remains the same: to provide every Filipina with footwear that reflects her strength, beauty, and divine femininity. 
+                          Whether you’re stepping into a boardroom, a special event, or a casual day out, ERICA Shoeline PH is here to walk with you on your journey.
+                      </p>
+                  </div>
+              </div>
+          </div>
+      
+          <div class="row align-items-center flex-row-reverse">
+              <!-- Fourth Section: Text Left, Image Right -->
+              <div class="col-lg-6">
+                  <div class="about-thumb">
+                      <div class="shape-one scene">
+                          <span class="scene-layer" data-depth=".2">
+                              <img src="{% static 'assets/img/about/1.webp' %}" width="570" height="368" alt="Your Shoe, Your Femininity">
+                          </span>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-lg-6">
+                  <div class="about-content">
+                      <p class="desc"><strong>ERICA Shoeline PH – Your Shoe, Your Femininity.</strong></p>
+                      <a class="btn-theme" href="{% url 'contact' %}">Contact Us</a>
+                  </div>
+              </div>
+          </div>
+      </div>
+      
+        </div>
+      </div>
+    </section>
+    <!--== End About Area Wrapper ==-->
+
+    <section class="bg-color-f2 position-relative z-index-1">
+      <div class="container pt--0 pb--0">
+          <div class="row divider-wrap divider-style1">
+              <div class="col-lg-6">
+                  <div class="divider-content" data-title="NEW">
+                      <h4 class="sub-title">Saving 50%</h4>
+                      <h2 class="title">All Online Store</h2>
+                      <p class="desc">Offer Available on All Shoes & Products</p>
+                      <a class="btn-theme" href="{% url 'shop' %}">Shop Now</a>
+                  </div>
+              </div>
+          </div>
+      </div>
+      <div class="bg-layer-wrap">
+          <div class="bg-layer-style z-index--1 parallax" data-speed="1.05" data-bg-img="{% static 'assets/img/photos/945x500.png' %}"></div>
+      </div>
+  </section>
+  
+
+    <!--== Start Team Area Wrapper ==-->
+    <section class="team-area">
+      <div class="container">
+        <div class="row">
+          <div class="col-12">
+            <div class="section-title text-center">
+              <h3 class="title">Our Team</h3>
+              <div class="desc">
+                <p>Meet the amazing people behind our company.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          {% for member in team_members %}
+          <div class="col-sm-6 col-lg-3">
+            <div class="team-item">
+              <div class="inner-content">
+                <div class="thumb">
+                  <a href="{% url 'about' %}"><img src="{{ member.image.url }}" width="270" height="270" alt="{{ member.name }}"></a>
+                  <div class="member-icons">
+                    <a href="{{ member.facebook }}" target="_blank"><i class="fa fa-facebook"></i></a>
+                    <a href="{{ member.dribbble }}" target="_blank"><i class="fa fa-dribbble"></i></a>
+                    <a href="{{ member.pinterest }}" target="_blank"><i class="fa fa-pinterest-p"></i></a>
+                  </div>
+                </div>
+                <div class="content">
+                  <h4 class="title"><a href="{% url 'about' %}">{{ member.name }}</a></h4>
+                  <p>{{ member.position }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+    <!--== End Team Area Wrapper ==-->
+
+    <!--== Start Testimonial Area Wrapper ==-->
+    <section class="testimonial-area bg-color-f2 position-relative z-index-1">
+      <div class="container">
+        <div class="row">
+          <div class="col-12">
+            <div class="section-title text-center">
+              <h3 class="title">Client Feedback</h3>
+              <div class="desc">
+                <p>See what our customers have to say about us.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          {% for testimonial in testimonials %}
+          <div class="col-12">
+            <div class="testimonial-item">
+              <div class="testi-inner-content">
+                <div class="testi-thumb">
+                  <img src="{{ testimonial.image.url }}" width="90" height="90" alt="{{ testimonial.client_name }}">
+                </div>
+                <div class="testi-content">
+                  <p>{{ testimonial.feedback }}</p>
+                  <div class="testi-author">
+                    <div class="testi-info">
+                      <span class="name">{{ testimonial.client_name }}</span>
+                    </div>
+                  </div>
+                  <div class="testi-quote"><img src="{% static 'assets/img/icons/quote1.webp' %}" width="62" height="44" alt="Quote"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+    <!--== End Testimonial Area Wrapper ==-->
+
+    <!--== Start Blog Area Wrapper ==-->
+    <section class="blog-area blog-default-area">
+      <div class="container">
+        <div class="row">
+          <div class="col-12">
+            <div class="section-title text-center">
+              <h3 class="title">Latest Blog</h3>
+              <div class="desc">
+                <p>Stay updated with our latest news and insights.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          {% for blog in latest_blogs %}
+          <div class="col-md-6 col-lg-4">
+            <div class="post-item">
+              <div class="inner-content">
+                <div class="thumb">
+                  <a href="{% url 'blog_details' blog.slug %}">
+                    <img src="{{ blog.image.url }}" width="370" height="260" alt="{{ blog.title }}">
+                  </a>
+                </div>
+                <div class="content">
+                  <div class="meta-post">
+                    <ul>
+                      <li class="post-date">
+                        <i class="fa fa-calendar"></i>
+                        <a href="{% url 'blog_list' %}">{{ blog.published_date|date:"d M, Y" }}</a>
+                      </li>
+                      <li class="author-info">
+                        <i class="fa fa-user"></i>
+                        <a href="{% url 'blog_list' %}">{{ blog.author }}</a>
+                      </li>
+                    </ul>
+                  </div>
+                  <h4 class="title">
+                    <a href="{% url 'blog_details' blog.slug %}">{{ blog.title }}</a>
+                  </h4>
+                  <a class="post-btn" href="{% url 'blog_details' blog.slug %}">Read More</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <div class="col-12 text-center">
+            <p>No blog posts available at the moment.</p>
+          </div>
+          {% endfor %}
+        </div>
+        
+      </div>
+    </section>
+    <!--== End Blog Area Wrapper ==-->
+</main>
+</div>
+{% endblock %}

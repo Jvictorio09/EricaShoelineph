@@ -1,0 +1,420 @@
+{% extends 'myapp/base.html' %}
+{% block content %}
+{% load static %}
+
+<div class="wrapper">
+    
+    <main class="main-content">
+
+        <!--== Start Page Header ==-->
+        <div class="page-header-area" style="background-image: url('/static/assets/img/photos/1920x390.png');">
+            <div class="container pt--0 pb--0">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="page-header-content">
+                            <h2 class="title" data-aos="fade-down" data-aos-duration="1000">Product Page</h2>
+                            <nav class="breadcrumb-area" data-aos="fade-down" data-aos-duration="1200">
+                                <ul class="breadcrumb">
+                                    <li><a href="index.html">Home</a></li>
+                                    <li class="breadcrumb-sep">//</li>
+                                    <li>Product Page</li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!--== End Page Header ==-->
+    
+        <!--== Start Product Area Wrapper ==-->
+        <section class="product-area product-default-area">
+            <div class="container">
+                <div class="row flex-xl-row-reverse justify-content-between">
+                    <div class="col-xl-9">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="shop-top-bar">
+                                    <div class="shop-top-left">
+                                        <p class="pagination-line">
+                                            {{ products|length }} Product(s) Found
+                                        </p>
+                                    </div>
+                                    <div class="shop-top-right">
+                                        <form method="GET">
+                                            <span>Sort By :</span>
+                                            <select class="form-select" name="sort" onchange="this.form.submit()">
+                                                <option value="default">Default</option>
+                                                <option value="price_low" {% if request.GET.sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                                                <option value="price_high" {% if request.GET.sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                                            </select>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+    
+                            <div class="col-12">
+                                <div class="row">
+                                    {% for product in products %}
+                                    <div class="col-sm-6 col-lg-4">
+                                        <div class="product-item">
+                                            <div class="inner-content">
+                                                <div class="product-thumb">
+                                                    <a href="{% url 'product_detail' product.id %}">
+                                                        <img src="{{ product.image.url }}" width="270" height="274" alt="{{ product.name }}">
+                                                    </a>
+                                                    <div class="product-action">
+                                                        <a class="btn-product-wishlist" href="#"><i class="fa fa-heart"></i></a>
+                                                        <a class="btn-product-cart" href="#"><i class="fa fa-shopping-cart"></i></a>
+                                                        <button type="button" class="btn-product-quick-view-open" onclick="openQuickView({{ product.id }})">
+                                                            <i class="fa fa-arrows"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="product-info">
+                                                    <h4 class="title">
+                                                        <a href="{% url 'product_detail' product.id %}">{{ product.name }}</a>
+                                                    </h4>
+                                                    <div class="prices">
+                                                        {% if product.discount_price %}
+                                                        <span class="price-old">${{ product.price }}</span>
+                                                        <span class="price">${{ product.get_price }}</span>
+                                                        {% else %}
+                                                        <span class="price">${{ product.price }}</span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                    
+                                </div>
+                            </div>
+    
+                            <!-- Pagination -->
+                            <div class="col-12">
+                                <div class="pagination-items">
+                                    <ul class="pagination justify-content-end mb--0">
+                                        {% if products.has_previous %}
+                                        <li><a href="?page=1">First</a></li>
+                                        <li><a href="?page={{ products.previous_page_number }}">&laquo;</a></li>
+                                        {% endif %}
+    
+                                        <li class="active"><a href="?page={{ products.paginator.num_pages }}">{{ products.number }}</a></li>
+    
+                                        {% if products.has_next %}
+                                        <li><a href="?page={{ products.next_page_number }}">&raquo;</a></li>
+                                        <li><a href="?page={{ products.paginator.num_pages }}">Last</a></li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <!--== Sidebar Filters ==-->
+                    <div class="col-xl-3">
+                        <div class="shop-sidebar">
+                            <!-- Dynamic Categories -->
+                            <div class="shop-sidebar-category">
+                                <h4 class="sidebar-title">Top Categories</h4>
+                                <div class="sidebar-category">
+                                    <ul class="category-list mb--0">
+                                        {% for category in categories %}
+                                            <li>
+                                                <a href="{% url 'shop' %}?category={{ category.id }}">
+                                                    {{ category.name }} <span>({{ category.product_set.count }})</span>
+                                                </a>
+                                            </li>
+                                        {% empty %}
+                                            <li>No categories available</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                    
+                            <!-- Price Filter (Static, Can be made dynamic) -->
+                            <div class="shop-sidebar-price-range">
+                                <h4 class="sidebar-title">Price Filter</h4>
+                                <div class="sidebar-price-range">
+                                    <div id="price-range"></div>
+                                </div>
+                            </div>
+                    
+                            <!-- Color Options (Static, Can be fetched from DB if needed) -->
+                            <div class="shop-sidebar-color">
+                                <h4 class="sidebar-title">Color</h4>
+                                <div class="sidebar-color">
+                                    <ul class="color-list">
+                                        <li style="background-color: #39ed8c;" class="active"></li>
+                                        <li style="background-color: #a6ed42;"></li>
+                                        <li style="background-color: #daed39;"></li>
+                                        <li style="background-color: #eed739;"></li>
+                                        <li style="background-color: #eca23a;"></li>
+                                        <li style="background-color: #f36768;"></li>
+                                        <li style="background-color: #e14755;"></li>
+                                        <li style="background-color: #dc83a3;"></li>
+                                        <li style="background-color: #dc82da;"></li>
+                                        <li style="background-color: #9a82dd;"></li>
+                                        <li style="background-color: #82c2db;"></li>
+                                        <li style="background-color: #6bd6b0;"></li>
+                                        <li style="background-color: #9ed76b;"></li>
+                                        <li style="background-color: #c8c289;"></li>
+                                    </ul>
+                                </div>
+                            </div>
+                    
+                            <!-- Size Options (Static, Can be made dynamic if needed) -->
+                            <div class="shop-sidebar-size">
+                                <h4 class="sidebar-title">Size</h4>
+                                <div class="sidebar-size">
+                                    <ul class="size-list">
+                                        {% for size in sizes %}
+                                            <li>
+                                                <a href="{% url 'shop' %}?size={{ size.id }}">
+                                                    {{ size.name }}
+                                                </a>
+                                            </li>
+                                        {% empty %}
+                                            <li>No sizes available</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                    
+                            <!-- Dynamic Brands -->
+                            <div class="shop-sidebar-brand">
+                                <h4 class="sidebar-title">Brand</h4>
+                                <div class="sidebar-brand">
+                                    <ul class="brand-list mb--0">
+                                        {% for brand in brands %}
+                                            <li>
+                                                <a href="{% url 'shop' %}?brand={{ brand.id }}">
+                                                    {{ brand.name }} 
+                                                </a>
+                                            </li>
+                                        {% empty %}
+                                            <li>No brands available</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+            </div>
+        </section>
+        <!--== End Product Area Wrapper ==-->
+    </main>
+    
+
+</div>
+
+<aside class="product-quick-view-modal" id="productQuickView">
+    <div class="product-quick-view-inner">
+        <div class="product-quick-view-content">
+            <!-- Close Button -->
+            <button type="button" class="btn-close" onclick="closeQuickView()">
+                <span class="close-icon"><i class="fa fa-close"></i></span>
+            </button>
+
+            <div class="row align-items-center">
+                <!-- Product Image -->
+                <div class="col-lg-6 col-md-6 col-12">
+                    <div class="thumb">
+                        <img id="quick-view-image" src="" width="570" height="541" alt="Product Image">
+                    </div>
+                </div>
+
+                <!-- Product Details -->
+                <div class="col-lg-6 col-md-6 col-12">
+                    <div class="content">
+                        <h4 class="title" id="quick-view-title"></h4>
+                        <div class="prices">
+                            <del class="price-old" id="quick-view-old-price"></del>
+                            <span class="price" id="quick-view-price"></span>
+                        </div>
+                        <p id="quick-view-description"></p>
+
+                        <!-- Dropdowns for Size and Color -->
+                        <div class="quick-view-select">
+                            <div class="quick-view-select-item">
+                                <label for="quickViewSize" class="form-label">Size:</label>
+                                <select class="form-select" id="quickViewSize">
+                                    <option value="">Select a size</option>
+                                </select>
+                            </div>
+                            <div class="quick-view-select-item">
+                                <label for="quickViewColor" class="form-label">Color:</label>
+                                <select class="form-select" id="quickViewColor">
+                                    <option value="">Select a color</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Quantity & Add to Cart Button -->
+                        <div class="action-top">
+                            <div class="pro-qty">
+                                <input type="text" id="quick-view-quantity" title="Quantity" value="1" />
+                            </div>
+                            <button class="btn btn-black" onclick="addToCart()">Add to cart</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay to close the modal -->
+    <div class="canvas-overlay" onclick="closeQuickView()"></div>
+</aside>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        loadCartItems(); // Load cart items on page load
+    });
+    
+    // ✅ OPEN QUICK VIEW MODAL & FETCH PRODUCT DETAILS
+    function openQuickView(productId) {
+        fetch(`/quick-view/${productId}/`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("quick-view-title").innerText = data.name;
+                document.getElementById("quick-view-description").innerText = data.description;
+                document.getElementById("quick-view-image").src = data.image_url;
+                document.getElementById("quick-view-price").innerText = `₱${data.price}`;
+                
+                // Handle old price if available
+                let oldPriceEl = document.getElementById("quick-view-old-price");
+                if (data.old_price) {
+                    oldPriceEl.innerText = `₱${data.old_price}`;
+                    oldPriceEl.style.display = "inline";  // Show if available
+                } else {
+                    oldPriceEl.style.display = "none"; // Hide if not available
+                }
+    
+                // ✅ Populate Size Dropdown
+                let sizeSelect = document.getElementById("quickViewSize");
+                sizeSelect.innerHTML = '<option value="">Select a size</option>';
+                data.sizes.forEach(size => {
+                    let option = document.createElement("option");
+                    option.value = size;
+                    option.innerText = size;
+                    sizeSelect.appendChild(option);
+                });
+    
+                // ✅ Populate Color Dropdown
+                let colorSelect = document.getElementById("quickViewColor");
+                colorSelect.innerHTML = '<option value="">Select a color</option>';
+                data.colors.forEach(color => {
+                    let option = document.createElement("option");
+                    option.value = color;
+                    option.innerText = color;
+                    colorSelect.appendChild(option);
+                });
+    
+                // ✅ Show Quick View Modal
+                document.getElementById("productQuickView").style.display = "block";
+            })
+            .catch(error => console.error("Error loading Quick View:", error));
+    }
+    
+    // ✅ CLOSE QUICK VIEW MODAL
+    function closeQuickView() {
+        document.getElementById("productQuickView").style.display = "none";
+    }
+    
+    // ✅ ADD PRODUCT TO CART
+    function addToCart(productId) {
+        let quantity = document.getElementById("quick-view-quantity").value || 1;
+        
+        fetch(`/cart/add/${productId}/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCookie("csrftoken") // Ensure CSRF token for Django security
+            },
+            body: JSON.stringify({ quantity: parseInt(quantity) }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Product added to cart!");
+                loadCartItems();
+            } else {
+                alert("Error adding to cart!");
+            }
+        })
+        .catch(error => console.error("Error adding to cart:", error));
+    }
+    
+    // ✅ LOAD CART ITEMS (FOR SIDEBAR)
+    function loadCartItems() {
+        fetch("/cart-data/")
+            .then(response => response.json())
+            .then(data => {
+                let cartList = document.getElementById("cart-items");
+                let cartSubtotal = document.getElementById("cart-subtotal");
+                cartList.innerHTML = "";
+                let subtotal = 0;
+    
+                if (data.items.length === 0) {
+                    cartList.innerHTML = `<li class="empty-cart">Your cart is empty.</li>`;
+                }
+    
+                data.items.forEach(item => {
+                    let cartItem = document.createElement("li");
+                    cartItem.classList.add("product-list-item");
+                    cartItem.innerHTML = `
+                        <a href="#" class="remove" onclick="removeFromCart(${item.id})">×</a>
+                        <a href="/product/${item.id}">
+                            <img src="${item.image}" width="90" height="110" alt="${item.name}">
+                            <span class="product-title">${item.name}</span>
+                        </a>
+                        <span class="product-price">${item.quantity} × ₱${item.price}</span>
+                    `;
+                    cartList.appendChild(cartItem);
+                    subtotal += item.quantity * item.price;
+                });
+    
+                cartSubtotal.innerText = `₱${subtotal.toFixed(2)}`;
+            })
+            .catch(error => console.error("Error loading cart:", error));
+    }
+    
+    // ✅ REMOVE ITEM FROM CART
+    function removeFromCart(productId) {
+        fetch(`/remove-from-cart/${productId}/`, {
+            method: "POST",
+            headers: { "X-CSRFToken": getCookie("csrftoken") },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                loadCartItems();
+            }
+        })
+        .catch(error => console.error("Error removing item:", error));
+    }
+    
+    // ✅ GET CSRF TOKEN FUNCTION
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    </script>
+    
+{% endblock %}

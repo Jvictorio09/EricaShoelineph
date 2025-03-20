@@ -1,0 +1,341 @@
+{% extends 'myapp/base.html' %}
+{% block content %}
+{% load static %}
+
+<div class="wrapper">
+    <main class="main-content">
+        <div class="page-header-area" style="background-image: url('{% static "assets/img/photos/1920x390.png" %}');">
+            <div class="container pt--0 pb--0">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="page-header-content">
+                            <h2 class="title" data-aos="fade-down" data-aos-duration="1000">Blog</h2>
+                            <nav class="breadcrumb-area" data-aos="fade-down" data-aos-duration="1200">
+                                <ul class="breadcrumb">
+                                    <li><a href="{% url 'home' %}">Home</a></li>
+                                    <li class="breadcrumb-sep">//</li>
+                                    <li>Blog</li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+        <section class="blog-details-area">
+            <div class="container">
+                <div class="row justify-content-between">
+                    <div class="col-xl-8 order-0 order-xl-2" data-aos="fade-left">
+                        <div class="blog-details-content-wrap details-left">
+                            <div class="blog-details-item"> 
+                                <div class="blog-details-thumb">
+                                    <img src="{{ blog.image.url }}" style="width: 100%; max-width: 750px; height: 459px; border-radius: 8px; object-fit: cover;" alt="{{ blog.title }}">
+
+                                </div>
+                                <div class="blog-meta-post">
+                                    <ul>
+                                        <li class="post-date">
+                                            <i class="fa fa-calendar"></i>
+                                            <span>{{ blog.published_date|date:"d M, Y" }}</span>
+                                        </li>
+                                        <li class="author-info">
+                                            <i class="fa fa-user"></i>
+                                            <span>{{ blog.author }}</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <h3 class="main-title">{{ blog.title }}</h3>
+
+                                <div class="details-wrapper details-wrapper-style1" data-margin-bottom="38">
+                                    <p>{{ blog.content }}</p>
+                                </div>
+
+                                {% if blog.quote %}
+                                <blockquote>
+                                <div class="inner-content">
+                                    <p>{{ blog.quote.text }}</p>
+                                    <span class="user-name">{{ blog.quote.author }}</span>
+                                    <img class="inner-shape" src="{{ blog.quote.image.url }}" width="82" height="59" alt="Quote">
+                                </div>
+                                </blockquote>
+                                {% endif %}
+                                <div class="blog-details-footer">
+                                    <!-- Dynamic Blog Tags -->
+                                    <div class="tage-list">
+                                        <span>Tags:</span>
+                                        {% for tag in blog.tags.all %}
+                                            <a href="{% url 'blog_by_tag' tag.name %}">{{ tag.name }}</a>{% if not forloop.last %}, {% endif %}
+                                        {% empty %}
+                                            <span>No tags available</span>
+                                        {% endfor %}
+                                    </div>
+                                
+                                    <!-- Dynamic Social Share Links -->
+                                    <div class="social-icons">
+                                        <span>Share:</span>
+                                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}"><i class="fa fa-facebook"></i></a>
+                                        <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}"><i class="fa fa-linkedin"></i></a>
+                                        <a href="https://pinterest.com/pin/create/button/?url={{ request.build_absolute_uri }}&media={{ blog.image.url }}&description={{ blog.title }}"><i class="fa fa-pinterest-p"></i></a>
+                                        <a href="https://twitter.com/intent/tweet?text={{ blog.title }}&url={{ request.build_absolute_uri }}"><i class="fa fa-twitter"></i></a>
+                                    </div>
+                                </div>
+                                <div class="article-next-previous">
+                                    {% if previous_blog %}
+                                    <div class="arrow-item previous">
+                                        <div class="arrow-thumb">
+                                            <a href="{% url 'blog_details' previous_blog.slug %}">
+                                                <img src="{{ previous_blog.image.url }}" width="98" height="101" alt="{{ previous_blog.title }}">
+                                            </a>
+                                            <a class="overlay" href="{% url 'blog_details' previous_blog.slug %}">
+                                                <i class="fa fa-angle-left"></i>
+                                            </a>
+                                        </div>
+                                        <div class="arrow-content">
+                                            <span class="date">
+                                                <a href="{% url 'blog_details' previous_blog.slug %}">
+                                                    <i class="fa fa-calendar"></i> {{ previous_blog.published_date|date:"d M, Y" }}
+                                                </a>
+                                            </span>
+                                            <h6 class="title">
+                                                <a href="{% url 'blog_details' previous_blog.slug %}">{{ previous_blog.title }}</a>
+                                            </h6>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                
+                                    {% if next_blog %}
+                                    <div class="arrow-item next">
+                                        <div class="arrow-thumb">
+                                            <a href="{% url 'blog_details' next_blog.slug %}">
+                                                <img src="{{ next_blog.image.url }}" width="98" height="101" alt="{{ next_blog.title }}">
+                                            </a>
+                                            <a class="overlay" href="{% url 'blog_details' next_blog.slug %}">
+                                                <i class="fa fa-angle-right"></i>
+                                            </a>
+                                        </div>
+                                        <div class="arrow-content">
+                                            <span class="date">
+                                                <a href="{% url 'blog_details' next_blog.slug %}">
+                                                    {{ next_blog.published_date|date:"d M, Y" }} <i class="fa fa-calendar"></i>
+                                                </a>
+                                            </span>
+                                            <h6 class="title">
+                                                <a href="{% url 'blog_details' next_blog.slug %}">{{ next_blog.title }}</a>
+                                            </h6>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div> 
+                            <div class="comment-view-area">
+                                <h4 class="title-main">Comments ({{ comments.count }})</h4>
+                                <div class="comment-view-content">
+                                    {% for comment in comments %}
+                                    <div class="single-comment">
+                                        <div class="author-pic">
+                                            <img src="{% static 'assets/img/blog/author1.webp' %}" width="101" height="118" alt="
+                                            {% if comment.user %}{{ comment.user.username }}{% else %}{{ comment.guest_name }}{% endif %}">
+                                        </div>
+                                        <div class="author-info">
+                                            <h4 class="title">
+                                                {% if comment.user %}
+                                                    {{ comment.user.username }}
+                                                {% else %}
+                                                    {{ comment.guest_name }}
+                                                {% endif %}
+                                                <span> - </span>
+                                                <span class="comment-date">{{ comment.created_at|date:"d M, Y" }}</span>
+                                            </h4>
+                                            <p>{{ comment.content }}</p>
+                                            <div class="author-info-footer">
+                                                <a class="comment-reply" href="#reply-{{ comment.id }}" 
+                                                   onclick="document.getElementById('reply-form-{{ comment.id }}').style.display='block'; return false;">Reply</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                            
+                                    <!-- Nested Replies -->
+                                    {% for reply in comment.replies.all %}
+                                    <div class="single-comment reply-comment" style="margin-left: 40px;">
+                                        <div class="author-pic">
+                                            <img src="{% static 'assets/img/blog/author2.webp' %}" width="101" height="118" alt="
+                                            {% if reply.user %}{{ reply.user.username }}{% else %}{{ reply.guest_name }}{% endif %}">
+                                        </div>
+                                        <div class="author-info">
+                                            <h4 class="title">
+                                                {% if reply.user %}
+                                                    {{ reply.user.username }}
+                                                {% else %}
+                                                    {{ reply.guest_name }}
+                                                {% endif %}
+                                                <span> - </span>
+                                                <span class="comment-date">{{ reply.created_at|date:"d M, Y" }}</span>
+                                            </h4>
+                                            <p>{{ reply.content }}</p>
+                                            <div class="author-info-footer">
+                                                <a class="comment-reply" href="#reply-{{ comment.id }}" 
+                                                   onclick="document.getElementById('reply-form-{{ comment.id }}').style.display='block'; return false;">Reply</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                            
+                                    <!-- Reply Form -->
+                                    <div id="reply-form-{{ comment.id }}" class="reply-form" style="display: none; margin-left: 40px;">
+                                        <form method="post" action="{% url 'add_comment' blog.slug %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                                            <div class="form-group" style="margin: 10px;">
+                                                <textarea class="form-control" name="content" rows="3" placeholder="Write a reply..."></textarea>
+                                            </div>
+                                            <button type="submit" class="btn-theme" style="margin-bottom: 10px;">Reply</button>
+                                        </form>
+                                    </div>
+                                    {% empty %}
+                                    <p>No comments yet. Be the first to comment!</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            
+                            
+                            <!-- Comment Form -->
+                            <div class="comment-form-area">
+                                <h4 class="title-main">Leave a Comment</h4>
+                                <div class="comment-form-content">
+                                    <form method="post" action="{% url 'add_comment' blog.slug %}">
+                                        {% csrf_token %}
+                                        <div class="row">
+                                            {% if not request.user.is_authenticated %}
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <input class="form-control" type="text" name="guest_name" placeholder="Your Name *" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <input class="form-control" type="email" name="guest_email" placeholder="Your Email *" required>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <textarea class="form-control" name="content" rows="3" placeholder="Write a comment..." required></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <div class="form-group mb--0">
+                                                    <button type="submit" class="btn-theme">Post Comment</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            
+                        </div>
+                    </div>
+                    <div class="col-xl-4 order-2 order-lg-1" data-aos="fade-right">
+                        <div class="blog-sidebar">
+                            <div class="blog-sidebar-search">
+                                <div class="sidebar-search-form">
+                                    <form action="{% url 'blog_list' %}" method="GET">
+                                        <input type="search" name="q" placeholder="Search blogs..." value="{{ query }}">
+                                        <button type="submit"><i class="fa fa-search"></i></button>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            <!-- Display Search Results -->
+                            {% if query %}
+                                <p>Showing results for: <strong>{{ query }}</strong></p>
+                            {% elif request.GET.q %}
+                                <p>No results found for: <strong>{{ request.GET.q }}</strong></p>
+                            {% endif %}
+
+                            <div class="blog-sidebar-wrap">
+                                <div class="blog-sidebar-category">
+                                    <h4 class="sidebar-title" data-margin-bottom="23">Categories</h4>
+                                    <div class="sidebar-category">
+                                        <ul class="category-list">
+                                            {% for category in categories %}
+                                                <li>
+                                                    <a href="{% url 'blog_list' %}?category={{ category.id }}">
+                                                        {{ category.name }} <span>({{ category.blog_count }})</span>
+                                                    </a>
+                                                </li>
+                                            {% empty %}
+                                                <li>No categories found</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="blog-sidebar-post">
+                                    <h4 class="sidebar-title">Recent Posts</h4>
+                                    <div class="sidebar-post">
+                                        {% for post in recent_posts %}
+                                            <div class="single-post">
+                                                <div class="post-thumb">
+                                                    <a href="{% url 'blog_details' post.slug %}">
+                                                        <img src="{{ post.image.url }}" width="98" height="101" alt="{{ post.title }}">
+                                                    </a>
+                                                </div>
+                                                <div class="post-content">
+                                                    <span class="date"><i class="fa fa-calendar"></i> {{ post.published_date|date:"d M, Y" }}</span>
+                                                    <h6 class="title">
+                                                        <a href="{% url 'blog_details' post.slug %}">{{ post.title }}</a>
+                                                    </h6>
+                                                </div>
+                                            </div>
+                                        {% empty %}
+                                            <p>No recent posts available.</p>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="blog-sidebar-category-sub-menu">
+                                    <h4 class="sidebar-title" data-margin-bottom="23">Archives</h4>
+                                    <div class="sidebar-category-sub-menu">
+                                        <ul class="sub-menu-list">
+                                            {% for archive in archives %}
+                                                <li>
+                                                    <a href="{% url 'blog_by_archive' archive.month.year archive.month.month %}">
+                                                        {{ archive.month|date:"F Y" }} <span>({{ archive.total }})</span>
+                                                    </a>
+                                                </li>
+                                            {% empty %}
+                                                <li>No archives available</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="blog-sidebar-tags">
+                                    <h4 class="sidebar-title">Tags</h4>
+                                    <div class="sidebar-tags">
+                                        <ul class="tags-list mb--0">
+                                            {% for tag in tags %}
+                                                <li><a href="{% url 'blog_by_tag' tag.name %}">{{ tag.name }}</a></li>
+                                            {% empty %}
+                                                <li>No tags available</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                
+                                
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+
+</div>
+
+{% endblock %}

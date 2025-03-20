@@ -1,0 +1,78 @@
+{% load static %}
+
+<footer class="footer-area">
+    <!--== Start Footer Main ==-->
+    <div class="footer-main">
+        <div class="container pt--0 pb--0">
+            <div class="row">
+                <!-- Brand Info -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="widget-item">
+                        <div class="about-widget-wrap">
+                            <div class="widget-logo-area">
+                                <a href="{% url 'home' %}">
+                                    <img class="logo-main" src="{% static 'assets/img/erica_logo.png' %}" width="150" height="40" alt="ERICA Shoeline PH">
+                                </a>
+                            </div>
+                            <p class="desc">Timeless elegance in every step. Discover sophistication, comfort, and confidence with ERICA Shoeline PH.</p>
+                            <div class="social-icons">
+                                <a href="https://www.facebook.com/erica.shoelineph" target="_blank"><i class="fa fa-facebook"></i></a>
+                                <a href="https://www.instagram.com/erica.shoelineph" target="_blank"><i class="fa fa-instagram"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- My Account -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="widget-item">
+                        <h4 class="widget-title">My Account</h4>
+                        <ul class="nav-menu">
+                            <li><a href="{% url 'login' %}">Login / Register</a></li>
+                            <li><a href="{% url 'cart' %}">Shopping Cart</a></li>
+                            <li><a href="{% url 'shop' %}">Shop</a></li>
+                            <li><a href="{% url 'contact' %}">Contact</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="widget-item">
+                        <h4 class="widget-title">Contact Info</h4>
+                        <ul>
+                            <li><span>Phone:</span> <a href="tel:+639975947669">0997-594-7669</a></li>
+                            <li><span>Email:</span> <a href="mailto:erica.shoelineph@gmail.com">erica.shoelineph@gmail.com</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Payment Methods -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="widget-item">
+                        <h4 class="widget-title">We Accept</h4>
+                        <div class="payment">
+                            <img src="{% static 'assets/img/photos/payment-card.webp' %}" width="192" height="21" alt="Payment Methods">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--== End Footer Main ==-->
+
+    <!--== Start Footer Bottom ==-->
+    <div class="footer-bottom">
+        <div class="container pt--0 pb--0">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p class="copyright">© 2025 ERICA Shoeline PH. All Rights Reserved.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--== End Footer Bottom ==-->
+</footer>
+
+<!--== Scroll Top Button ==-->
+<div id="scroll-to-top" class="scroll-to-top"><span class="fa fa-angle-up"></span></div>

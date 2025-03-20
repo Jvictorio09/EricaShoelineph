@@ -1,0 +1,578 @@
+{% load static %}
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Shome - Shoes eCommerce Website Template"/>
+    <meta name="keywords" content="footwear, shoes, modern, shop, store, ecommerce, responsive, e-commerce"/>
+    <meta name="author" content="codecarnival"/>
+
+    <title>{% block title %}Shopping Cart | Shome{% endblock %}</title>
+
+    <!--== Favicon ==-->
+    <link rel="shortcut icon" href="{% static 'assets/img/favicon.ico' %}" type="image/x-icon" />
+
+    <!--== Google Fonts ==-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400;1,500&display=swap" rel="stylesheet">
+
+    <link href="{% static 'assets/css/bootstrap.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/font-awesome.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/pe-icon-7-stroke.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/swiper.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/fancybox.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/aos.min.css' %}" rel="stylesheet" />
+    
+    <!--== Ensure this file is loading ==-->
+    <link href="{% static 'assets/css/style.css' %}?v=1" rel="stylesheet" />
+
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+
+{% block content %}
+{% include 'myapp/header.html' %}
+<div class="wrapper">  
+      
+        <main class="main-content">      
+            <div class="page-header-area" style="background-image: url('{% static "assets/img/photos/1920x390.png" %}');">
+                <div class="container pt--0 pb--0">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="page-header-content">
+                                <h2 class="title" data-aos="fade-down" data-aos-duration="1000">Shopping Cart</h2>
+                                <nav class="breadcrumb-area" data-aos="fade-down" data-aos-duration="1200">
+                                    <ul class="breadcrumb">
+                                        <li><a href="{% url 'home' %}">Home</a></li>
+                                        <li class="breadcrumb-sep">//</li>
+                                        <li>Shopping Cart</li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--== End Page Header Area Wrapper ==-->
+            
+            <!--== Start Shopping Cart Area Wrapper ==-->
+            <section class="shopping-cart-area">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="shopping-cart-form table-responsive">
+                                <form action="#" method="post">
+                                    <table class="table text-center">
+                                        <thead>
+                                            <tr>
+                                                <th class="product-remove">&nbsp;</th>
+                                                <th class="product-thumb">&nbsp;</th>
+                                                <th class="product-name">Product</th>
+                                                <th class="product-price">Price</th>
+                                                <th class="product-quantity">Quantity</th>
+                                                <th class="product-subtotal">Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="cart-items">
+                                            {% for item in cart_items %}
+                                            <tr class="cart-product-item" data-product-id="{{ item.product.id }}">
+                                                <td class="product-remove">
+                                                    <a href="{% url 'remove_from_cart' item.product.id %}" >
+                                                        <i class="fa fa-trash-o"></i>
+                                                    </a>
+                                                </td>
+                                                <td class="product-thumb">
+                                                    <a href="{% url 'product_detail' item.product.id %}">
+                                                        <img src="{{ item.product.image.url }}" width="90" height="110" alt="{{ item.product.name }}">
+                                                    </a>
+                                                </td>
+                                                <td class="product-name">
+                                                    <h4 class="title"><a href="{% url 'product_detail' item.product.id %}">{{ item.product.name }}</a></h4>
+                                                </td>
+                                                <td class="product-price">
+                                                    <span class="price">£{{ item.product.get_price }}</span>
+                                                </td>
+                                                <td class="product-quantity">
+                                                    <div class="pro-qty">
+                                                        <input type="number" class="quantity form-control quantity-input" 
+                                                            data-product-id="{{ item.product.id }}" 
+                                                            value="{{ item.quantity }}" 
+                                                            min="1">
+                                                    </div>
+                                                </td>
+                                                <td class="product-subtotal">
+                                                    <span class="price">£{{ item.get_total_price }}</span>
+                                                </td>
+                                            </tr>
+                                            {% empty %}
+                                            <tr>
+                                                <td colspan="6">Your cart is empty.</td>
+                                            </tr>
+                                            {% endfor %}
+                                        
+                                            <!-- ✅ Cart Actions inside the table -->
+                                            <tr class="actions">
+                                                <td class="border-0" colspan="6">
+                                                    <button type="submit" class="update-cart btn btn-primary" disabled>Update cart</button>
+                                                    <form id="clearCartForm" action="{% url 'clear_cart' %}" method="POST">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="clear-cart btn btn-danger">Clear Cart</button>
+                                                    </form>
+                                                    
+                                                    <a href="{% url 'shop' %}" class="btn-theme btn-flat">Continue Shopping</a>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                
+    
+            
+            
+
+                <div class="row row-gutter-50">
+                    <div class="col-md-6 col-lg-4">
+                        <div id="CategoriesAccordion" class="shipping-form-calculate">
+                            <div class="section-title-cart">
+                                <h5 class="title">Calculate Shipping</h5>
+                                <div class="desc">
+                                    <p>Estimate your shipping fee *</p>
+                                </div>
+                            </div>
+                            <span data-bs-toggle="collapse" data-bs-target="#CategoriesTwo" aria-expanded="true" role="button">
+                                Calculate shipping
+                            </span>
+                            <div id="CategoriesTwo" class="collapse show" data-bs-parent="#CategoriesAccordion">
+                                <form id="shippingForm" method="post">
+                                    {% csrf_token %}
+                                    <div class="row row-gutter-50">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label class="visually-hidden" for="FormCountry">Country</label>
+                                                <select id="FormCountry" class="form-control" name="country">
+                                                    <option value="">Select a country…</option>
+                                                    {% for country in countries %}
+                                                    <option value="{{ country.code }}">{{ country.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label for="stateCounty" class="visually-hidden">State / County</label>
+                                                <input type="text" id="stateCounty" name="state" class="form-control" 
+                                                    placeholder="State / County" value="{{ user_shipping.state }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label for="townCity" class="visually-hidden">Town / City</label>
+                                                <input type="text" id="townCity" name="city" class="form-control" 
+                                                    placeholder="Town / City" value="{{ user_shipping.city }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label for="postcodeZip" class="visually-hidden">Postcode / ZIP</label>
+                                                <input type="text" id="postcodeZip" name="zipcode" class="form-control" 
+                                                    placeholder="Postcode / ZIP" value="{{ user_shipping.zipcode }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <button type="button" class="update-totals btn btn-primary">
+                                                    Update Totals
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <p id="shippingCost">Shipping Cost: £<span>0.00</span></p>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="shipping-form-coupon">
+                        <div class="section-title-cart">
+                            <h5 class="title">Coupon Code</h5>
+                            <div class="desc">
+                                <p>Enter your coupon code if you have one.</p>
+                            </div>
+                        </div>
+                        <form id="couponForm" method="post">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="couponCode" class="visually-hidden">Coupon Code</label>
+                                        <input type="text" id="couponCode" name="coupon_code" class="form-control" 
+                                            placeholder="Enter your coupon code.." required>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <button type="button" class="coupon-btn btn btn-primary" id="applyCoupon">
+                                            Apply coupon
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <p id="couponMessage" class="text-success" style="display: none;"></p>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-12 col-lg-4">
+                    <div class="shipping-form-cart-totals">
+                        <div class="section-title-cart">
+                            <h5 class="title">Cart totals</h5>
+                        </div>
+                        <div class="cart-total-table">
+                            <table class="table">
+                                <tbody>
+                                    <tr class="cart-subtotal">
+                                        <td>
+                                            <p class="value">Subtotal</p>
+                                        </td>
+                                        <td>
+                                            <p class="price" id="cart-subtotal">£{{ cart_subtotal }}</p>
+                                        </td>
+                                    </tr>
+                                    <tr class="shipping">
+                                        <td>
+                                            <p class="value">Shipping</p>
+                                        </td>
+                                        <td>
+                                            <ul class="shipping-list">
+                                                <li class="radio">
+                                                    <input type="radio" name="shipping" id="radio1" value="flat_rate" checked>
+                                                    <label for="radio1"><span></span> Flat Rate (£5.00)</label>
+                                                </li>
+                                                <li class="radio">
+                                                    <input type="radio" name="shipping" id="radio2" value="free_shipping">
+                                                    <label for="radio2"><span></span> Free Shipping (£0.00)</label>
+                                                </li>
+                                                <li class="radio">
+                                                    <input type="radio" name="shipping" id="radio3" value="local_pickup">
+                                                    <label for="radio3"><span></span> Local Pickup (£2.00)</label>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                    <tr class="order-total">
+                                        <td>
+                                            <p class="value">Total</p>
+                                        </td>
+                                        <td>
+                                            <p class="price" id="cart-total">£{{ total_price }}</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <a class="btn-theme btn-flat" href="{% url 'checkout' %}">Proceed to checkout</a>
+                    </div>
+                
+            </section>
+        </main>
+</div>
+
+
+
+<footer class="footer-area">
+    <!--== Start Footer Main ==-->
+    <div class="footer-main">
+        <div class="container pt--0 pb--0">
+            <div class="row">
+                <!-- Brand Info -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="widget-item">
+                        <div class="about-widget-wrap">
+                            <div class="widget-logo-area">
+                                <a href="{% url 'home' %}">
+                                    <img class="logo-main" src="{% static 'assets/img/erica_logo.png' %}" width="150" height="40" alt="ERICA Shoeline PH">
+                                </a>
+                            </div>
+                            <p class="desc">Timeless elegance in every step. Discover sophistication, comfort, and confidence with ERICA Shoeline PH.</p>
+                            <div class="social-icons">
+                                <a href="https://www.facebook.com/erica.shoelineph" target="_blank"><i class="fa fa-facebook"></i></a>
+                                <a href="https://www.instagram.com/erica.shoelineph" target="_blank"><i class="fa fa-instagram"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- My Account -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="widget-item">
+                        <h4 class="widget-title">My Account</h4>
+                        <ul class="nav-menu">
+                            <li><a href="{% url 'login' %}">Login / Register</a></li>
+                            <li><a href="{% url 'cart' %}">Shopping Cart</a></li>
+                            <li><a href="{% url 'shop' %}">Shop</a></li>
+                            <li><a href="{% url 'contact' %}">Contact</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="widget-item">
+                        <h4 class="widget-title">Contact Info</h4>
+                        <ul>
+                            <li><span>Phone:</span> <a href="tel:+639975947669">0997-594-7669</a></li>
+                            <li><span>Email:</span> <a href="mailto:erica.shoelineph@gmail.com">erica.shoelineph@gmail.com</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Payment Methods -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="widget-item">
+                        <h4 class="widget-title">We Accept</h4>
+                        <div class="payment">
+                            <img src="{% static 'assets/img/photos/payment-card.webp' %}" width="192" height="21" alt="Payment Methods">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--== End Footer Main ==-->
+
+    <!--== Start Footer Bottom ==-->
+    <div class="footer-bottom">
+        <div class="container pt--0 pb--0">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p class="copyright">© 2025 ERICA Shoeline PH. All Rights Reserved.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--== End Footer Bottom ==-->
+</footer>
+
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+    function updateCartTotal() {
+        fetch("{% url 'cart-data' %}")  // Use Django's URL name
+            .then(response => response.json())
+            .then(data => {
+                let subtotal = 0;
+                data.items.forEach(item => {
+                    subtotal += item.quantity * item.price;
+                });
+                document.getElementById("cart-subtotal").textContent = `£${subtotal.toFixed(2)}`;
+                document.getElementById("cart-total").textContent = `£${subtotal.toFixed(2)}`;
+            })
+            .catch(error => console.error("Error updating cart total:", error));
+    }
+
+    // Handle quantity updates
+    document.querySelectorAll(".quantity").forEach(input => {
+        input.addEventListener("change", function () {
+            let productId = this.dataset.productId;
+            let newQuantity = this.value;
+
+            fetch(`/cart/update/${productId}/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCookie("csrftoken"),
+                },
+                body: JSON.stringify({ quantity: newQuantity })
+            })
+            .then(response => response.json())
+            .then(() => updateCartTotal())
+            .catch(error => console.error("Error updating quantity:", error));
+        });
+    });
+
+    // Handle remove item
+    document.querySelectorAll(".remove-item").forEach(button => {
+        button.addEventListener("click", function () {
+            let productId = this.dataset.productId;
+
+            fetch(`/cart/remove/${productId}/`, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken"),
+                }
+            })
+            .then(response => response.json())
+            .then(() => {
+                document.querySelector(`tr[data-product-id="${productId}"]`).remove();
+                updateCartTotal();
+            })
+            .catch(error => console.error("Error removing item:", error));
+        });
+    });
+
+    document.querySelector(".update-totals").addEventListener("click", function () {
+        let formData = new FormData(document.getElementById("shippingForm"));
+
+        fetch("{% url 'calculate_shipping' %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": getCookie("csrftoken"),
+            },
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("shippingCost").innerHTML = `Shipping Cost: £<span>${data.cost.toFixed(2)}</span>`;
+        })
+        .catch(error => console.error("Error fetching shipping cost:", error));
+    });
+
+    document.getElementById("applyCoupon").addEventListener("click", function () {
+        let couponCode = document.getElementById("couponCode").value;
+
+        if (couponCode.trim() === "") {
+            alert("Please enter a valid coupon code.");
+            return;
+        }
+
+        fetch("{% url 'apply_coupon' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCookie("csrftoken"),
+            },
+            body: JSON.stringify({ coupon_code: couponCode })
+        })
+        .then(response => response.json())
+        .then(data => {
+            let message = document.getElementById("couponMessage");
+            if (data.success) {
+                message.classList.remove("text-danger");
+                message.classList.add("text-success");
+                message.innerText = `Success! ${data.discount}% off applied.`;
+                updateCartTotal(data.discount);
+            } else {
+                message.classList.remove("text-success");
+                message.classList.add("text-danger");
+                message.innerText = "Invalid or expired coupon code.";
+            }
+            message.style.display = "block";
+        })
+        .catch(error => console.error("Error applying coupon:", error));
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith(name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function updateCartTotal(discount) {
+        let subtotalElement = document.getElementById("cart-subtotal");
+        let totalElement = document.getElementById("cart-total");
+
+        let subtotal = parseFloat(subtotalElement.textContent.replace("£", ""));
+        let discountedTotal = subtotal - (subtotal * discount / 100);
+
+        totalElement.innerHTML = `£${discountedTotal.toFixed(2)}`;
+    }
+    function updateCartTotal() {
+        let subtotal = parseFloat(document.getElementById("cart-subtotal").textContent.replace("£", ""));
+        let shippingCost = getShippingCost();
+        let total = subtotal + shippingCost;
+        
+        document.getElementById("cart-total").textContent = `£${total.toFixed(2)}`;
+    }
+
+    document.querySelector(".clear-cart").addEventListener("click", function (event) {
+        event.preventDefault(); // Prevent form submission
+        if (confirm("Are you sure you want to clear your cart?")) {
+            fetch("{% url 'clear_cart' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCookie("csrftoken"),  // ✅ Send CSRF Token
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    document.getElementById("cart-items").innerHTML = "<tr><td colspan='6'>Your cart is empty.</td></tr>";
+                    updateCartTotal();
+                } else {
+                    alert("Error: " + data.error);
+                }
+            })
+            .catch(error => console.error("Error clearing cart:", error));
+        }
+    });
+
+    function getShippingCost() {
+        let selectedShipping = document.querySelector('input[name="shipping"]:checked').value;
+        if (selectedShipping === "flat_rate") return 5.00;
+        if (selectedShipping === "local_pickup") return 2.00;
+        return 0.00;  // Free shipping
+    }
+
+    document.querySelectorAll('input[name="shipping"]').forEach(input => {
+        input.addEventListener("change", updateCartTotal);
+    });
+
+    updateCartTotal(); // Initial calculation
+});
+
+
+</script>
+
+<!--=== jQuery Modernizr Min Js ===-->
+<script src="{% static 'assets/js/modernizr.js' %}"></script>
+<!--=== jQuery Min Js ===-->
+<script src="{% static 'assets/js/jquery-main.js' %}"></script>
+<!--=== jQuery Migration Min Js ===-->
+<script src="{% static 'assets/js/jquery-migrate.js' %}"></script>
+<!--=== jQuery Popper Min Js ===-->
+<script src="{% static 'assets/js/popper.min.js' %}"></script>
+<!--=== jQuery Bootstrap Min Js ===-->
+<script src="{% static 'assets/js/bootstrap.min.js' %}"></script>
+<!--=== jQuery Ui Min Js ===-->
+<script src="{% static 'assets/js/jquery-ui.min.js' %}"></script>
+<!--=== jQuery Swiper Min Js ===-->
+<script src="{% static 'assets/js/swiper.min.js' %}"></script>
+<!--=== jQuery Fancybox Min Js ===-->
+<script src="{% static 'assets/js/fancybox.min.js' %}"></script>
+<!--=== jQuery Waypoint Js ===-->
+<script src="{% static 'assets/js/waypoint.js' %}"></script>
+<!--=== jQuery Parallax Min Js ===-->
+<script src="{% static 'assets/js/parallax.min.js' %}"></script>
+<!--=== jQuery Aos Min Js ===-->
+<script src="{% static 'assets/js/aos.min.js' %}"></script>
+
+<!--=== jQuery Custom Js ===-->
+{% block extra_scripts %}{% endblock %} 
+
+{% endblock %}

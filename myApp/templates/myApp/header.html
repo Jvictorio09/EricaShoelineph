@@ -1,0 +1,135 @@
+{% load static %}
+
+<header class="main-header-wrapper position-relative">
+    <!--== Start Header Top ==-->
+    <div class="header-top">
+        <div class="container pt--0 pb--0">
+            <div class="row">
+                <div class="col-12">
+                    <div class="header-top-align">
+                        <div class="header-top-align-start">
+                            <div class="desc">
+                                <p>👠 Elevate Your Confidence with ERICA Shoeline PH</p>
+                            </div>
+                        </div>
+                        <div class="header-top-align-end">
+                            <div class="header-info-items">
+                                <div class="info-items">
+                                    <ul>
+                                        <li class="number"><i class="fa fa-phone"></i> 
+                                            <a href="tel:+639975947669">0997-594-7669</a>
+                                        </li>
+                                        <li class="email"><i class="fa fa-envelope"></i> 
+                                            <a href="mailto:erica.shoelineph@gmail.com">erica.shoelineph@gmail.com</a>
+                                        </li>
+                                        <li class="social-icons">
+                                            <a href="https://www.facebook.com/erica.shoelineph" target="_blank">
+                                                <i class="fa fa-facebook"></i>
+                                            </a>
+                                            <a href="https://www.instagram.com/erica.shoelineph" target="_blank">
+                                                <i class="fa fa-instagram"></i>
+                                            </a>
+                                        </li>
+                                        <li class="account"><i class="fa fa-user"></i> 
+                                            <a href="{% url 'login' %}">Account</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--== End Header Top ==-->
+
+    <!--== Start Header Middle ==-->
+    <div class="header-middle">
+        <div class="container pt--0 pb--0">
+            <div class="row align-items-center">
+                <div class="col-12">
+                    <div class="header-middle-align">
+                        <div class="header-middle-align-start">
+                            <div class="header-logo-area">
+                                <a href="{% url 'home' %}">
+                                    <img class="logo-main" src="{% static 'assets/img/erica_logo.png' %}" width="180" height="50" alt="ERICA Shoeline PH">
+                                    <img class="logo-light" src="{% static 'assets/img/erica_logo.png' %}" width="180" height="50" alt="ERICA Shoeline PH">
+                                </a>
+                            </div>
+                        </div>
+                        <div class="header-middle-align-center">
+                            <div class="header-search-area">
+                                <form class="header-searchbox" method="GET" action="{% url 'shop' %}">
+                                    <input type="search" name="q" class="form-control" placeholder="Search for shoes...">
+                                    <button class="btn-submit" type="submit"><i class="pe-7s-search"></i></button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="header-middle-align-end">
+                            <div class="header-action-area">
+                                <div class="shopping-search">
+                                    <button class="shopping-search-btn" type="button"><i class="pe-7s-search icon"></i></button>
+                                </div>
+                                <div class="shopping-wishlist">
+                                    <a class="shopping-wishlist-btn" href="{% url 'shop' %}">
+                                        <i class="pe-7s-like icon"></i>
+                                    </a>
+                                </div>
+                                <div class="shopping-cart">
+                                    <button class="shopping-cart-btn" type="button" id="cartToggle">
+                                        <i class="pe-7s-shopbag icon"></i>
+                                        <sup class="shop-count" id="cart-count">
+                                            {% if cart_count %}{{ cart_count }}{% else %}0{% endif %}
+                                        </sup>
+                                    </button>
+                                </div>
+                                
+                                <button class="btn-menu" type="button">
+                                    <i class="pe-7s-menu"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--== End Header Middle ==-->
+
+    <!--== Start Navigation ==-->
+    <div class="header-area header-default">
+        <div class="container">
+            <div class="row no-gutter align-items-center position-relative">
+                <div class="col-12">
+                    <div class="header-align">
+                        <div class="header-navigation-area position-relative">
+                            <ul class="main-menu nav">
+                                <li><a href="{% url 'home' %}"><span>Home</span></a></li>
+                                <li><a href="{% url 'about' %}"><span>About</span></a></li>
+                                <li><a href="{% url 'shop' %}"><span>Shop</span></a></li>
+                                <li><a href="{% url 'blog_list' %}"><span>Blog</span></a></li>
+                                <li><a href="{% url 'contact' %}"><span>Contact</span></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--== End Navigation ==-->
+</header>
+
+
+{% include 'myapp/aside_cart.html' %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    let cartToggle = document.getElementById("cartToggle");
+    let cartOffcanvas = new bootstrap.Offcanvas(document.getElementById("AsideOffcanvasCart"));
+
+    cartToggle.addEventListener("click", function () {
+        cartOffcanvas.show(); // Open the cart when button is clicked
+    });
+});
+</script>

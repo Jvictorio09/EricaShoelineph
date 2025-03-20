@@ -1,0 +1,144 @@
+{% extends 'myapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<main class="main-content">
+    <!--== Start Page Header Area Wrapper ==-->
+    <div class="page-header-area" style="background-image: url('{% static 'assets/img/photos/1920x390.png' %}');">
+
+      <div class="container pt--0 pb--0">
+        <div class="row">
+          <div class="col-12">
+            <div class="page-header-content">
+              <h2 class="title" data-aos="fade-down" data-aos-duration="1000">Contact Us</h2>
+              <nav class="breadcrumb-area" data-aos="fade-down" data-aos-duration="1200">
+                <ul class="breadcrumb">
+                  <li><a href="{% url 'home' %}">Home</a></li>
+                  <li class="breadcrumb-sep">//</li>
+                  <li>Contact Us</li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--== End Page Header Area Wrapper ==-->
+
+    <!--== Start Contact Area Wrapper ==-->
+    <section class="contact-area contact-page-area">
+      <div class="container">
+        <div class="row contact-page-wrapper">
+          <div class="col-xl-9">
+            <div class="contact-form-wrap" data-aos="fade-right">
+              <div class="contact-form-title">
+                <h2 class="title">We Are Here! <br>Please Send A Quest</h2>
+              </div>
+
+              <!--== Start Contact Form ==-->
+              <div class="contact-form">
+                <form method="POST">
+                  {% csrf_token %}
+                  <div class="row row-gutter-20">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <input class="form-control" type="text" name="name" placeholder="Name *" required>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <input class="form-control" type="email" name="email" placeholder="Email *" required>
+                      </div>
+                    </div>
+                    <div class="col-12">
+                      <div class="form-group">
+                        <input class="form-control" type="text" name="subject" placeholder="Subject (Optional)">
+                      </div>
+                    </div>
+                    <div class="col-12">
+                      <div class="form-group mb--0">
+                        <textarea class="form-control" name="message" placeholder="Message" required></textarea>
+                      </div>
+                    </div>
+                    <div class="col-12">
+                      <div class="form-group mb--0">
+                        <button class="btn-theme" type="submit">Send Message</button>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+              <!--== End Contact Form ==-->
+
+              {% if messages %}
+                <div class="form-message">
+                  {% for message in messages %}
+                    <p class="alert alert-info">{{ message }}</p>
+                  {% endfor %}
+                </div>
+              {% endif %}
+
+              <div class="shape-group-style2">
+                <div class="shape-group-one"><img src="{% static 'assets/img/shape/13.webp' %}" width="193" height="168" alt="Shape"></div>
+                <div class="shape-group-two"><img src="{% static 'assets/img/shape/15.webp' %}" width="221" height="113" alt="Shape"></div>
+                <div class="shape-group-three"><img src="{% static 'assets/img/shape/16.webp' %}" width="129" height="147" alt="Shape"></div>
+                <div class="shape-group-four"><img src="{% static 'assets/img/shape/17.webp' %}" width="493" height="340" alt="Shape"></div>
+              </div>
+            </div>
+          </div>
+
+          <!--== Contact Info Section ==-->
+          <div class="col-xl-3">
+            <div class="contact-info-wrap">
+              <div class="contact-info">
+                <div class="row">
+                  <div class="col-lg-4 col-xl-12">
+                    <div class="info-item" data-aos="fade-left">
+                      <div class="icon">
+                        <img src="{% static 'assets/img/icons/c1.webp' %}" width="69" height="65" alt="Address">
+                      </div>
+                      <div class="info">
+                        <h5 class="title">Address</h5>
+                        <p>123 Your Location, Your City</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-4 col-xl-12">
+                    <div class="info-item" data-aos="fade-left" data-aos-delay="60">
+                      <div class="icon">
+                        <img src="{% static 'assets/img/icons/c2.webp' %}" width="65" height="65" alt="Phone">
+                      </div>
+                      <div class="info">
+                        <h5 class="title">Phone No</h5>
+                        <p>
+                          <a href="tel:+00123456789">+00 123 456 789</a><br>
+                          <a href="tel:+00123456789">+00 987 654 321</a>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-4 col-xl-12">
+                    <div class="info-item" data-aos="fade-left" data-aos-delay="120">
+                      <div class="icon">
+                        <img src="{% static 'assets/img/icons/c3.webp' %}" width="65" height="65" alt="Email">
+                      </div>
+                      <div class="info">
+                        <h5 class="title">Email / Web</h5>
+                        <p>
+                          <a href="mailto:info@example.com">info@example.com</a><br>
+                          <a href="https://www.example.com" target="_blank">www.example.com</a>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!--== End Contact Info Section ==-->
+        </div>
+      </div>
+    </section>
+    <!--== End Contact Area Wrapper ==-->
+</main>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% load static %} 
+
+<!DOCTYPE html>
+<html lang="zxx">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Erica - Shoes eCommerce Website Template"/>
+    <meta name="keywords" content="footwear, shoes, modern, shop, store, ecommerce, responsive, e-commerce"/>
+    <meta name="author" content="codecarnival"/>
+
+    <title>{% block title %}Home{% endblock %} - Erica</title>
+
+    <!--== Favicon ==-->
+    <link rel="shortcut icon" href="{% static 'assets/img/favicon.ico' %}" type="image/x-icon" />
+
+    <!--== Google Fonts ==-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400;1,500&display=swap" rel="stylesheet">
+
+    <!--== Stylesheets (Ensure Correct Paths) ==-->
+    <link href="{% static 'assets/css/bootstrap.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/font-awesome.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/pe-icon-7-stroke.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/swiper.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/fancybox.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/aos.min.css' %}" rel="stylesheet" />
+    
+    <!--== Ensure this file is loading ==-->
+    <link href="{% static 'assets/css/style.css' %}?v=1" rel="stylesheet" />
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+
+<body>
+
+    <!-- Header -->
+    {% include 'myapp/header.html' %}
+    
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    {% include 'myapp/footer.html' %}
+
+    <!-- Scripts -->
+    <script src="{% static 'assets/js/modernizr.js' %}"></script>
+    <script src="{% static 'assets/js/jquery-main.js' %}"></script>
+    <script src="{% static 'assets/js/jquery-migrate.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/js/jquery-ui.min.js' %}"></script>
+    <script src="{% static 'assets/js/swiper.min.js' %}"></script>
+    <script src="{% static 'assets/js/fancybox.min.js' %}"></script>
+    <script src="{% static 'assets/js/waypoint.js' %}"></script>
+    <script src="{% static 'assets/js/parallax.min.js' %}"></script>
+    <script src="{% static 'assets/js/aos.min.js' %}"></script>
+    <script src="{% static 'assets/js/custom.js' %}"></script>
+
+    {% block extra_scripts %}{% endblock %}
+
+</body>
+</html>

@@ -1,0 +1,379 @@
+{% extends 'myapp/base.html' %}
+{% block content %}
+{% load static %}
+
+<div class="wrapper">
+    <main class="main-content">
+        <div class="page-header-area" style="background-image: url('{% static "assets/img/photos/1920x390.png" %}');">
+            <div class="container pt--0 pb--0">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="page-header-content">
+                            <h2 class="title" data-aos="fade-down" data-aos-duration="1000">Checkout</h2>
+                            <nav class="breadcrumb-area" data-aos="fade-down" data-aos-duration="1200">
+                                <ul class="breadcrumb">
+                                    <li><a href="{% url 'home' %}">Home</a></li>
+                                    <li class="breadcrumb-sep">//</li>
+                                    <li>Checkout</li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <section class="shopping-checkout-wrap">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="checkout-page-login-wrap">
+                            <!--== Start Checkout Login Accordion ==-->
+                            <div class="login-accordion" id="LoginAccordion">
+                                <div class="card">
+                                    <h3>
+                                        <i class="fa fa-info-circle"></i>
+                                        Returning customer?
+                                        <a href="#/" data-bs-toggle="collapse" data-bs-target="#loginaccordion">Click here to login</a>
+                                    </h3>
+                                    <div id="loginaccordion" class="collapse" data-bs-parent="#LoginAccordion">
+                                        <div class="card-body">
+                                            <div class="login-wrap">
+                                                <p>
+                                                    If you have shopped with us before, please enter your details below. 
+                                                    If you are a new customer, please proceed to the Billing & Shipping section.
+                                                </p>
+                                                <form method="POST" action="{% url 'login' %}">
+                                                    {% csrf_token %}
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label for="logEmail">Username or email <span class="required">*</span></label>
+                                                                <input id="logEmail" name="username" class="form-control" type="text" required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group left-m">
+                                                                <label for="logPass">Password <span class="required">*</span></label>
+                                                                <input id="logPass" name="password" class="form-control" type="password" required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group mt-30">
+                                                                <button type="submit" class="btn-login">Login</button>
+                                                                <div class="rememberme-account">
+                                                                    <div class="custom-control custom-checkbox">
+                                                                        <input type="checkbox" class="custom-control-input visually-hidden" id="remembermePass">
+                                                                        <label class="custom-control-label" for="remembermePass">Remember me</label>
+                                                                    </div>
+                                                                </div>
+                                                                <a class="lost-password" href="{% url 'password_reset' %}">Lost your password?</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--== End Checkout Login Accordion ==-->
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="checkout-page-coupon-wrap">
+                            <!--== Start Checkout Coupon Accordion ==-->
+                            <div class="coupon-accordion" id="CouponAccordion">
+                                <div class="card">
+                                    <h3>
+                                        <i class="fa fa-info-circle"></i>
+                                        Have a Coupon?
+                                        <a href="#/" data-bs-toggle="collapse" data-bs-target="#couponaccordion">Click here to enter your code</a>
+                                    </h3>
+                                    <div id="couponaccordion" class="collapse" data-bs-parent="#CouponAccordion">
+                                        <div class="card-body">
+                                            <div class="apply-coupon-wrap mb-60">
+                                                <p>If you have a coupon code, please apply it below.</p>
+                                                <form method="POST" action="{% url 'apply_coupon' %}">
+                                                    {% csrf_token %}
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <input class="form-control" type="text" name="coupon_code" placeholder="Enter your coupon code" required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <button type="submit" class="btn-coupon">Apply Coupon</button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                                {% if messages %}
+                                                    <div class="mt-3">
+                                                        {% for message in messages %}
+                                                            <p class="{% if message.tags == 'success' %}text-success{% else %}text-danger{% endif %}">{{ message }}</p>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--== End Checkout Coupon Accordion ==-->
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <!--== Start Billing Accordion ==-->
+                        <div class="checkout-billing-details-wrap">
+                            <h2 class="title">Billing details</h2>
+                            <div class="billing-form-wrap">
+                                <form method="POST" action="{% url 'checkout' %}">
+                                    {% csrf_token %}
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="f_name">First name <abbr class="required" title="required">*</abbr></label>
+                                                <input id="f_name" name="first_name" type="text" class="form-control" value="{{ user.first_name }}" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="l_name">Last name <abbr class="required" title="required">*</abbr></label>
+                                                <input id="l_name" name="last_name" type="text" class="form-control" value="{{ user.last_name }}" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label for="com_name">Company name (optional)</label>
+                                                <input id="com_name" name="company_name" type="text" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label for="country">Country <abbr class="required" title="required">*</abbr></label>
+                                                <select id="country" name="country" class="form-control" required>
+                                                    {% for country in countries %}
+                                                        <option value="{{ country.code }}" {% if country.code == selected_country %}selected{% endif %}>
+                                                            {{ country.name }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label for="street-address">Street address <abbr class="required" title="required">*</abbr></label>
+                                                <input id="street-address" name="street_address" type="text" class="form-control" placeholder="House number and street name" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="street-address2" class="visually-hidden">Street address 2 <abbr class="required" title="required">*</abbr></label>
+                                                <input id="street-address2" name="street_address2" type="text" class="form-control" placeholder="Apartment, suite, unit etc. (optional)">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label for="town">Town / City <abbr class="required" title="required">*</abbr></label>
+                                                <input id="town" name="city" type="text" class="form-control" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label for="district">District <abbr class="required" title="required">*</abbr></label>
+                                                <select id="district" name="district" class="form-control">
+                                                    {% for district in districts %}
+                                                        <option value="{{ district.id }}">{{ district.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label for="pz-code">Postcode / ZIP (optional)</label>
+                                                <input id="pz-code" name="postal_code" type="text" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label for="phone">Phone (optional)</label>
+                                                <input id="phone" name="phone" type="text" class="form-control" value="{{ user.phone_number }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label for="email">Email address <abbr class="required" title="required">*</abbr></label>
+                                                <input id="email" name="email" type="email" class="form-control" value="{{ user.email }}" required>
+                                            </div>
+                                        </div>
+                                        <div id="CheckoutBillingAccordion" class="col-md-12">
+                                            <div class="checkout-box">
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input visually-hidden" id="CreateAccount" name="create_account">
+                                                    <label class="custom-control-label" for="CreateAccount">Create an account?</label>
+                                                </div>
+                                            </div>
+                                            <div id="CheckoutOne" class="collapse">
+                                                <div class="form-group">
+                                                    <label for="password">Create account password <abbr class="required" title="required">*</abbr></label>
+                                                    <input id="password" name="password" type="password" class="form-control" placeholder="Password">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="CheckoutBillingAccordion2" class="col-md-12">
+                                            <div class="checkout-box">
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input visually-hidden" id="ship-to-different-address" name="ship_to_different">
+                                                    <label class="custom-control-label" for="ship-to-different-address">Ship to a different address?</label>
+                                                </div>
+                                            </div>
+                                            <div id="CheckoutTwo" class="collapse">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="f_name2">First name <abbr class="required" title="required">*</abbr></label>
+                                                            <input id="f_name2" name="shipping_first_name" type="text" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="l_name2">Last name <abbr class="required" title="required">*</abbr></label>
+                                                            <input id="l_name2" name="shipping_last_name" type="text" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                    
+                                                </div>
+                                                
+                                            </div>
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label for="order-notes">Order notes (optional)</label>
+                                                    <textarea id="order-notes" name="order_notes" class="form-control" placeholder="Notes about your order, e.g. special notes for delivery."></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <!--== End Billing Accordion ==-->
+                    </div>
+                    <div class="col-lg-6">
+                        <!--== Start Order Details Accordion ==-->
+                        <div class="checkout-order-details-wrap">
+                            <div class="order-details-table-wrap table-responsive">
+                                <h2 class="title mb-25">Your order</h2>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th class="product-name">Product</th>
+                                            <th class="product-total">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="table-body">
+                                        {% for item in cart_items %}
+                                            <tr class="cart-item">
+                                                <td class="product-name">
+                                                    {{ item.product.name }} <span class="product-quantity">× {{ item.quantity }}</span>
+                                                </td>
+                                                <td class="product-total">${{ item.total_price }}</td>
+                                            </tr>
+                                        {% empty %}
+                                            <tr>
+                                                <td colspan="2">Your cart is empty.</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                    <tfoot class="table-foot">
+                                        <tr class="cart-subtotal">
+                                            <th>Subtotal</th>
+                                            <td>${{ cart_subtotal }}</td>
+                                        </tr>
+                                        <tr class="shipping">
+                                            <th>Shipping</th>
+                                            <td>Flat rate: ${{ shipping_cost }}</td>
+                                        </tr>
+                                        <tr class="order-total">
+                                            <th>Total</th>
+                                            <td>${{ order_total }}</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                                <div class="shop-payment-method">
+                                    <div id="PaymentMethodAccordion">
+                                        <div class="card">
+                                            <div class="card-header" id="check_payments">
+                                                <h5 class="title" data-bs-toggle="collapse" data-bs-target="#itemOne" aria-expanded="true">
+                                                    Direct bank transfer
+                                                </h5>
+                                            </div>
+                                            <div id="itemOne" class="collapse show" data-bs-parent="#PaymentMethodAccordion">
+                                                <div class="card-body">
+                                                    <p>Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order will not be shipped until the funds have cleared in our account.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card">
+                                            <div class="card-header" id="check_payments2">
+                                                <h5 class="title" data-bs-toggle="collapse" data-bs-target="#itemTwo" aria-expanded="false">
+                                                    Check payments
+                                                </h5>
+                                            </div>
+                                            <div id="itemTwo" class="collapse" data-bs-parent="#PaymentMethodAccordion">
+                                                <div class="card-body">
+                                                    <p>Please send a check to Store Name, Store Street, Store Town, Store State / County, Store Postcode.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card">
+                                            <div class="card-header" id="check_payments3">
+                                                <h5 class="title" data-bs-toggle="collapse" data-bs-target="#itemThree" aria-expanded="false">
+                                                    Cash on delivery
+                                                </h5>
+                                            </div>
+                                            <div id="itemThree" class="collapse" data-bs-parent="#PaymentMethodAccordion">
+                                                <div class="card-body">
+                                                    <p>Pay with cash upon delivery.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card">
+                                            <div class="card-header" id="check_payments4">
+                                                <h5 class="title" data-bs-toggle="collapse" data-bs-target="#itemFour" aria-expanded="false">
+                                                    PayPal Express Checkout 
+                                                    <img src="{% static 'assets/img/photos/paypal2.webp' %}" width="40" height="26" alt="PayPal">
+                                                </h5>
+                                            </div>
+                                            <div id="itemFour" class="collapse" data-bs-parent="#PaymentMethodAccordion">
+                                                <div class="card-body">
+                                                    <p>Pay via PayPal; you can pay with your credit card if you don’t have a PayPal account.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="p-text">Your personal data will be used to process your order, support your experience throughout this website, and for other purposes described in our 
+                                        <a href="#">privacy policy</a>.
+                                    </p>
+                                    <div class="agree-policy">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" id="privacy" class="custom-control-input visually-hidden" required>
+                                            <label for="privacy" class="custom-control-label">I have read and agree to the website terms and conditions <span class="required">*</span></label>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn-theme">Place order</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!--== End Order Details Accordion ==-->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+
+</div>
+
+{% endblock %}

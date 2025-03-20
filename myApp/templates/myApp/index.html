@@ -1,0 +1,368 @@
+{% extends 'myapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="wrapper">
+        <main class="main-content">
+
+            <!--== Start Hero Area Wrapper ==-->
+            <section class="home-slider-area">
+                <div class="swiper-container home-slider-container default-slider-container">
+                    <div class="swiper-wrapper home-slider-wrapper slider-default">
+                        {% for category in categories %}
+                        <div class="swiper-slide">
+                            <div class="slider-content-area slider-content-area-two" data-bg-img="{{ category.image.url }}">
+                                <div class="container">
+                                    <div class="slider-container">
+                                        <div class="row justify-content-between align-items-center">
+                                            <div class="col-lg-5">
+                                                <div class="slider-content">
+                                                    <div class="content">
+                                                        <div class="desc-box">
+                                                            <p class="desc">{{ category.discount_text }}</p>
+                                                        </div>
+                                                        <div class="title-box">
+                                                            <h2 class="title"><span class="font-weight-400">{{ category.name }}</span></h2>
+                                                        </div>
+                                                        <div class="btn-box">
+                                                            <a class="btn-slider" href="{% url 'shop_category' category.id %}">Shop Now</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!--== Add Swiper Arrows ==-->
+                    <div class="swiper-btn-wrap">
+                        <div class="swiper-btn-prev"><i class="pe-7s-angle-left"></i></div>
+                        <div class="swiper-btn-next"><i class="pe-7s-angle-right"></i></div>
+                    </div>
+                </div>
+            </section>
+            <!--== End Hero Area Wrapper ==-->
+
+            <!--== Start Product Category Area Wrapper ==-->
+            <section class="product-area product-category-area">
+                <div class="container-fluid">
+                    <div class="row">
+                        {% for category in categories %}
+                        <div class="col-sm-6 col-lg-4">
+                            <div class="product-category">
+                                <div class="inner-content">
+                                    <div class="product-category-content">
+                                        <div class="content">
+                                            <h4 class="sub-title">{{ category.discount_text }}</h4>
+                                            <h3 class="title"><a href="{% url 'shop_category' category.id %}">{{ category.name }}</a></h3>
+                                        </div>
+                                    </div>
+                                    <div class="product-category-thumb" data-bg-img="{{ category.image.url }}"></div>
+                                    <a class="banner-link-overlay" href="{% url 'shop_category' category.id %}"></a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+            <!--== End Product Category Area Wrapper ==-->
+
+            <!--== Start Product Area Wrapper ==-->
+            <section class="product-area product-default-area product-featured-area">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="section-title text-center">
+                                <h3 class="title">Featured Items</h3>
+                                <div class="desc">
+                                    <p>Check out our latest arrivals</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        {% for product in products %}
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="product-item">
+                                <div class="inner-content">
+                                    <div class="product-thumb">
+                                        <a href="{% url 'product_detail' product.id %}">
+                                            <img src="{{ product.image.url }}" width="270" height="274" alt="{{ product.name }}">
+                                        </a>
+                                        <div class="product-flag">
+                                            <ul>
+                                                {% if product.discount_price %}
+                                                <li class="discount">-{{ product.get_discount_percentage }}%</li>
+                                                {% endif %}
+                                            </ul>
+                                        </div>
+                                        <div class="product-action">
+                                            <a class="btn-product-wishlist" href="#"><i class="fa fa-heart"></i></a>
+                                            <a class="btn-product-cart" href="#"><i class="fa fa-shopping-cart"></i></a>
+                                        </div>
+                                    </div>
+                                    <div class="product-info">
+                                        <h4 class="title"><a href="{% url 'product_detail' product.id %}">{{ product.name }}</a></h4>
+                                        <div class="prices">
+                                            {% if product.discount_price %}
+                                            <span class="price-old">${{ product.price }}</span>
+                                            <span class="sep">-</span>
+                                            <span class="price">${{ product.get_discount_price }}</span>
+                                            {% else %}
+                                            <span class="price">${{ product.price }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+            <!--== End Product Area Wrapper ==-->
+
+            <!--== Start Divider Area Wrapper ==-->
+            <section class="parallax" data-speed="1.08" data-bg-img="{{ special_offer.bg_image.url }}">
+                <div class="container pt--0 pb--0">
+                    <div class="row divider-wrap divider-style3">
+                        <div class="col-lg-6">
+                            <div class="divider-thumb mousemove">
+                                <div class="shape-one scene">
+                                    <span class="scene-layer" data-depth=".5">
+                                        <img src="{{ special_offer.image1.url }}" width="377" height="243" alt="Offer Image">
+                                    </span>
+                                </div>
+                                <div class="shape-two mousemove-layer" data-speed="1">
+                                    <img src="{{ special_offer.image2.url }}" width="532" height="326" alt="Offer Shape">
+                                </div>
+                                <div class="shape-three">
+                                    <img src="{{ special_offer.image3.url }}" width="280" height="339" alt="Offer Shape">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="divider-content">
+                                <h4 class="sub-title">Saving {{ special_offer.discount_percentage }}%</h4>
+                                <h2 class="title">{{ special_offer.title }}</h2>
+                                <p class="desc">{{ special_offer.description }}</p>
+                                <a class="btn-theme" href="{% url 'shop' %}">Shop Now</a>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!--== End Divider Area Wrapper ==-->
+
+            <!--== Start Feature Area Wrapper ==-->
+<div class="feature-area">
+    <div class="container pb--0">
+        <div class="row">
+            <div class="col-12">
+                <div class="feature-content-box">
+                    <div class="feature-box-wrap">
+                        {% for feature in features %}
+                        <div class="col-item">
+                            <div class="feature-icon-box">
+                                <div class="inner-content">
+                                    <div class="icon-box">
+                                        <img class="icon-img" src="{{ feature.icon.url }}" width="55" height="41" alt="{{ feature.title }}">
+                                    </div>
+                                    <div class="content">
+                                        <h5 class="title">{{ feature.title }}</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="shape-group-style1">
+                        <div class="shape-group-one"><img src="{% static 'assets/img/shape/6.webp' %}" width="214" height="58" alt="Shape"></div>
+                        <div class="shape-group-two"><img src="{% static 'assets/img/shape/7.webp' %}" width="136" height="88" alt="Shape"></div>
+                        <div class="shape-group-three"><img src="{% static 'assets/img/shape/8.webp' %}" width="108" height="74" alt="Shape"></div>
+                        <div class="shape-group-four"><img src="{% static 'assets/img/shape/9.webp' %}" width="239" height="69" alt="Shape"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--== End Feature Area Wrapper ==-->
+
+<!--== Start Product Area Wrapper ==-->
+<section class="product-area product-best-seller-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="section-title text-center">
+                    <h3 class="title">Best Seller</h3>
+                    <div class="desc">
+                        <p>Discover our top-selling products</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="product-slider-wrap">
+                    <div class="swiper-container product-slider-col4-container">
+                        <div class="swiper-wrapper">
+                            {% for product in best_sellers %}
+                            <div class="swiper-slide">
+                                <div class="product-item">
+                                    <div class="inner-content">
+                                        <div class="product-thumb">
+                                            <a href="{% url 'product_detail' product.id %}">
+                                                <img src="{{ product.image.url }}" width="270" height="274" alt="{{ product.name }}">
+                                            </a>
+                                            <div class="product-flag">
+                                                <ul>
+                                                    {% if product.discount_price %}
+                                                    <li class="discount">-{{ product.discount_price|floatformat:0 }}%</li>
+                                                    {% endif %}
+                                                </ul>
+                                            </div>
+                                            <div class="product-action">
+                                                <a class="btn-product-wishlist" href="#"><i class="fa fa-heart"></i></a>
+                                                <a class="btn-product-cart" href="#"><i class="fa fa-shopping-cart"></i></a>
+                                                <button type="button" class="btn-product-quick-view-open">
+                                                    <i class="fa fa-arrows"></i>
+                                                </button>
+                                                <a class="btn-product-compare" href="#"><i class="fa fa-random"></i></a>
+                                            </div>
+                                        </div>
+                                        <div class="product-info">
+                                            <div class="category">
+                                                <ul>
+                                                    <li><a href="#">Men</a></li>
+                                                    <li class="sep">/</li>
+                                                    <li><a href="#">Women</a></li>
+                                                </ul>
+                                            </div>
+                                            <h4 class="title">
+                                                <a href="{% url 'product_detail' product.id %}">{{ product.name }}</a>
+                                            </h4>
+                                            <div class="prices">
+                                                {% if product.discount_price %}
+                                                <span class="price-old">${{ product.price }}</span>
+                                                <span class="sep">-</span>
+                                                <span class="price">${{ product.get_price }}</span>
+                                                {% else %}
+                                                <span class="price">${{ product.price }}</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <!--== Add Swiper Arrows ==-->
+                    <div class="product-swiper-btn-wrap">
+                        <div class="product-swiper-btn-prev">
+                            <i class="fa fa-arrow-left"></i>
+                        </div>
+                        <div class="product-swiper-btn-next">
+                            <i class="fa fa-arrow-right"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!--== End Product Area Wrapper ==-->
+
+    <!--== Start Product Collection Area Wrapper ==-->
+<section class="product-area product-collection-area">
+    <div class="container pt--0">
+      <div class="row">
+        {% for collection in product_collections %}
+        <div class="col-lg-4 col-md-6">
+          <!--== Start Product Collection Item ==-->
+          <div class="product-collection">
+            <div class="inner-content">
+              <div class="product-collection-content">
+                <div class="content">
+                  <h3 class="title">
+                    <a href="{% url 'shop_category' collection.id %}">{{ collection.name }}</a>
+                  </h3>
+                  <h4 class="price">From ${{ collection.price }}</h4>
+                </div>
+              </div>
+              <div class="product-collection-thumb" data-bg-img="{{ collection.image.url }}"></div>
+              <a class="banner-link-overlay" href="{% url 'shop_category' collection.id %}"></a>
+            </div>
+          </div>
+          <!--== End Product Collection Item ==-->
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  <!--== End Product Collection Area Wrapper ==-->
+  
+  {% load static %}
+
+<!--== Start Testimonial Area Wrapper ==-->
+<section class="testimonial-area">
+    <div class="container pt--0">
+        <div class="row">
+            <div class="col-12">
+                <div class="section-title text-center">
+                    <h3 class="title">Client Feedback</h3>
+                    <div class="desc">
+                        <p>See what our customers have to say about us!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="swiper-container testimonial-slider-container">
+                    <div class="swiper-wrapper">
+                        {% for testimonial in testimonials %}
+                        <div class="swiper-slide">
+                            <!--== Start Testimonial Item ==-->
+                            <div class="testimonial-item">
+                                <div class="testi-inner-content">
+                                    <div class="testi-thumb">
+                                        <img src="{{ testimonial.image.url }}" width="90" height="90" alt="{{ testimonial.name }}">
+                                    </div>
+                                    <div class="testi-content">
+                                        <p>{{ testimonial.feedback }}</p>
+                                        <div class="testi-author">
+                                            <div class="testi-info">
+                                                <span class="name"><a href="#">{{ testimonial.name }}</a></span>
+                                            </div>
+                                        </div>
+                                        <div class="testi-quote">
+                                            <img src="{% static 'assets/img/icons/quote1.webp' %}" width="62" height="44" alt="Testimonial Quote">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--== End Testimonial Item ==-->
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!--== End Testimonial Area Wrapper ==-->
+
+
+        </main>
+
+</div>
+{% endblock %}
