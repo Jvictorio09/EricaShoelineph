@@ -171,15 +171,6 @@ class ProductCollection(models.Model):
     image = models.ImageField(upload_to="collections/")
 
 
-from django.db import models
-
-class Testimonial(models.Model):
-    name = models.CharField(max_length=255)
-    feedback = models.TextField()
-    image = models.ImageField(upload_to="testimonials/")
-
-    def __str__(self):
-        return self.name
 
 
 from django.db import models
