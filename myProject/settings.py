@@ -34,7 +34,11 @@ ALLOWED_HOSTS = [
     'www.ericashoelineph.com'
 ]
 
-
+CSRF_TRUSTED_ORIGINS = [
+    'https://ericashoelineph-production.up.railway.app',
+    'https://ericashoelineph.com',
+    'https://www.ericashoelineph.com'
+]
 
 
 # Application definition
