@@ -24,7 +24,7 @@ def home(request):
         "product_collections": product_collections,
         "testimonials": testimonials
     }
-    return render(request, "myapp/index.html", context)
+    return render(request, "myApp/index.html", context)
 
 
 from django.shortcuts import render, get_object_or_404
@@ -34,7 +34,7 @@ def shop_category(request, id):
     category = get_object_or_404(Category, id=id)
     products = Product.objects.filter(category=category)  # Filter dynamically
     
-    return render(request, 'myapp/shop_category.html', {
+    return render(request, 'myApp/shop_category.html', {
         'category': category,
         'products': products
     })
@@ -66,7 +66,7 @@ def shop(request):
         'categories': categories,
         'brands': brands
     }
-    return render(request, 'myapp/shop.html', context)
+    return render(request, 'myApp/shop.html', context)
 
 
 from django.shortcuts import get_object_or_404
@@ -201,7 +201,7 @@ def cart_view(request):
         "cart_subtotal": cart_subtotal,
     }
 
-    return render(request, "myapp/cart.html", context)
+    return render(request, "myApp/cart.html", context)
 
 
 from django.shortcuts import render
@@ -239,7 +239,7 @@ def checkout(request):
         "order_total": order_total,
     }
 
-    return render(request, "myapp/checkout.html", context)
+    return render(request, "myApp/checkout.html", context)
 
 
 from django.contrib.auth import login, authenticate
@@ -253,7 +253,7 @@ def user_login(request):
         if user:
             login(request, user)
             return redirect("checkout")  # Redirect to checkout after login
-    return render(request, "myapp/checkout.html")
+    return render(request, "myApp/checkout.html")
 
 
 def cart_count(request):
@@ -311,7 +311,7 @@ def login_view(request):
         else:
             messages.error(request, "Invalid username or password.")
     
-    return render(request, "myapp/login.html")
+    return render(request, "myApp/login.html")
 
 
 from django.shortcuts import render
@@ -322,7 +322,7 @@ def about(request):
     testimonials = Testimonial.objects.all()
     latest_blogs = Blog.objects.order_by("-published_date")[:3]  # ✅ FIXED FIELD NAME
 
-    return render(request, "myapp/about.html", {
+    return render(request, "myApp/about.html", {
         "team_members": team_members,
         "testimonials": testimonials,
         "latest_blogs": latest_blogs,
@@ -353,7 +353,7 @@ def contact(request):
         messages.success(request, "Thank you for reaching out! We'll get back to you soon.")
         return redirect('contact')
 
-    return render(request, 'myapp/contact.html')
+    return render(request, 'myApp/contact.html')
 
 
 
@@ -414,7 +414,7 @@ def product_detail(request, id):
     # ✅ Fetch product reviews
     reviews = Review.objects.filter(product=product)
 
-    return render(request, 'myapp/product_detail.html', {
+    return render(request, 'myApp/product_detail.html', {
         'product': product,
         'related_products': related_products,
         'reviews': reviews,
@@ -455,7 +455,7 @@ from .models import Blog  # Assuming you have a BlogPost model
 
 def blog_list(request):
     blogs = Blog.objects.all().order_by('-published_date')  # Fetch latest posts
-    return render(request, "myapp/blog.html", {"blogs": blogs})
+    return render(request, "myApp/blog.html", {"blogs": blogs})
 
 
 from django.shortcuts import render, get_object_or_404
@@ -509,17 +509,17 @@ def blog_details(request, slug):
         "comments": comments,
         "form": form,
     }
-    return render(request, "myapp/blog_details.html", context)
+    return render(request, "myApp/blog_details.html", context)
 
 
 def blog_by_archive(request, year, month):
     blogs = Blog.objects.filter(published_date__year=year, published_date__month=month)
-    return render(request, "myapp/blog_archive.html", {"blogs": blogs, "year": year, "month": month})
+    return render(request, "myApp/blog_archive.html", {"blogs": blogs, "year": year, "month": month})
 
 def blog_by_tag(request, tag_name):
     tag = get_object_or_404(Tag, name=tag_name)
     blogs = Blog.objects.filter(tags=tag)
-    return render(request, "myapp/blog_tag.html", {"blogs": blogs, "tag": tag})
+    return render(request, "myApp/blog_tag.html", {"blogs": blogs, "tag": tag})
 
 
 from django.shortcuts import render, get_object_or_404, redirect
