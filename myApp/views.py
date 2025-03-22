@@ -5,9 +5,11 @@ from django.contrib import messages
 from django.core.mail import send_mail
 from django.contrib.auth import login, authenticate
 from .models import Product, Category, SpecialOffer, Feature, ProductCollection, Testimonial, Cart, CartItem, Coupon, TeamMember, Blog
+from myApp.context_processors import cart_context
 
 def home(request):
-    categories = Category.objects.all()
+    main_category = Category.objects.filter(is_main_header=True).first()
+    featured_categories = Category.objects.filter(show_on_homepage=True)[:3]
     products = Product.objects.all()  # Fetch all products dynamically
     special_offer = SpecialOffer.objects.first()
     features = Feature.objects.all()
@@ -16,7 +18,8 @@ def home(request):
     testimonials = Testimonial.objects.all()
 
     context = {
-        "categories": categories,
+        "main_category": main_category,
+        "categories": featured_categories,
         "products": products,
         'special_offer': special_offer,
         'features': features,
@@ -27,6 +30,11 @@ def home(request):
     return render(request, "myApp/index.html", context)
 
 
+
+# views.py
+
+
+
 from django.shortcuts import render, get_object_or_404
 from .models import Category, Product
 
@@ -34,6 +42,7 @@ def shop_category(request, id):
     category = get_object_or_404(Category, id=id)
     products = Product.objects.filter(category=category)  # Filter dynamically
     
+    context.update(cart_context(request))
     return render(request, 'myApp/shop_category.html', {
         'category': category,
         'products': products
@@ -61,11 +70,15 @@ def shop(request):
     if min_price and max_price:
         products = products.filter(price__gte=min_price, price__lte=max_price)
 
+
+    
     context = {
         'products': products,
         'categories': categories,
         'brands': brands
     }
+    
+    context.update(cart_context(request))
     return render(request, 'myApp/shop.html', context)
 
 
@@ -120,46 +133,84 @@ def add_to_cart(request, product_id):
     })
 
 
+from decimal import Decimal
+
 def get_cart_data(request):
+    items = []
+    subtotal = Decimal("0.00")
+
     if request.user.is_authenticated:
-        cart_items = CartItem.objects.filter(user=request.user)
-        items = [
-            {
-                "id": item.product.id,
-                "name": item.product.name,
-                "image": item.product.image.url if item.product.image else "",
-                "quantity": item.quantity,
-                "price": float(item.product.get_price()),
-            }
-            for item in cart_items
-        ]
-    else:
-        cart = request.session.get("cart", {})
-        items = []
-        for product_id, item in cart.items():
-            product = Product.objects.get(id=product_id)
+        cart_items = CartItem.objects.select_related("product").filter(user=request.user)
+
+        for item in cart_items:
+            product = item.product
+            price = Decimal(product.get_price())
+            quantity = item.quantity
+            subtotal += price * quantity
+
             items.append({
-                "id": product.id,
+                "id": item.id,
+                "product_id": product.id,
                 "name": product.name,
-                "image": product.image.url if product.image else "",
-                "quantity": item["quantity"],
-                "price": float(product.get_price()),
+                "image_url": product.image.url if product.image else "",
+                "quantity": quantity,
+                "price": float(price),
             })
 
-    return JsonResponse({"items": items})
-
-
-def remove_from_cart(request, product_id):
-    if request.user.is_authenticated:
-        cart_item = get_object_or_404(CartItem, product_id=product_id, user=request.user)
-        cart_item.delete()
     else:
         cart = request.session.get("cart", {})
-        if str(product_id) in cart:
-            del cart[str(product_id)]
-        request.session["cart"] = cart
+        for product_id, item in cart.items():
+            try:
+                product = Product.objects.get(id=product_id)
+                price = Decimal(product.get_price())
+                quantity = item["quantity"]
+                subtotal += price * quantity
 
-    return JsonResponse({"success": True, "message": "Item removed successfully!"})
+                items.append({
+                    "id": product.id,
+                    "product_id": product.id,
+                    "name": product.name,
+                    "image_url": product.image.url if product.image else "",
+                    "quantity": quantity,
+                    "price": float(price),
+                })
+            except Product.DoesNotExist:
+                continue
+
+    return JsonResponse({
+        "items": items,
+        "cart_subtotal": float(subtotal),
+    })
+
+
+
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from .models import CartItem
+
+@require_POST
+def remove_from_cart(request, cart_item_id):
+    try:
+        cart_item = get_object_or_404(CartItem, id=cart_item_id)
+
+        if request.user.is_authenticated:
+            if cart_item.user == request.user:
+                cart_item.delete()
+            else:
+                return JsonResponse({"success": False, "error": "Unauthorized access."}, status=403)
+
+        else:
+            session_id = request.session.get("session_id")
+            if cart_item.cart.session_id == session_id:
+                cart_item.delete()
+            else:
+                return JsonResponse({"success": False, "error": "Unauthorized session."}, status=403)
+
+        return JsonResponse({"success": True, "message": "Item removed successfully!"})
+
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=400)
 
 
 def clear_cart(request):
@@ -176,19 +227,26 @@ def clear_cart(request):
 
 from django.shortcuts import render, get_object_or_404
 from .models import Product, CartItem
+from django.shortcuts import render
+from .models import CartItem, Product
+from decimal import Decimal  # ✅ Import Decimal
 
 def cart_view(request):
     cart_items = []
-    cart_subtotal = 0
+    cart_subtotal = Decimal("0.00")  # ✅ Ensure cart_subtotal is Decimal
 
     if request.user.is_authenticated:
+        # ✅ Logged-in user: Fetch cart from DB
         cart_items = CartItem.objects.filter(user=request.user)
-        cart_subtotal = sum(item.get_total_price for item in cart_items)
+        cart_subtotal = sum(item.total_price for item in cart_items)
+
+
     else:
-        cart = request.session.get('cart', {})
+        # ✅ Guest user: Use session-based cart
+        cart = request.session.get("cart", {})
         for product_id, item in cart.items():
             product = Product.objects.get(id=product_id)
-            total_price = product.get_price() * item["quantity"]
+            total_price = Decimal(product.get_price()) * Decimal(item["quantity"])  # ✅ Convert price to Decimal
             cart_items.append({
                 "product": product,
                 "quantity": item["quantity"],
@@ -196,17 +254,20 @@ def cart_view(request):
             })
             cart_subtotal += total_price
 
+    shipping_cost = Decimal("2.00")  # ✅ Convert to Decimal
+    order_total = cart_subtotal + shipping_cost  # ✅ Fix the TypeError
+
     context = {
         "cart_items": cart_items,
         "cart_subtotal": cart_subtotal,
+        "shipping_cost": shipping_cost,
+        "order_total": order_total,
     }
 
     return render(request, "myApp/cart.html", context)
 
 
-from django.shortcuts import render
-from .models import CartItem, Product
-from decimal import Decimal  # ✅ Import Decimal
+
 
 def checkout(request):
     cart_items = []
@@ -215,7 +276,7 @@ def checkout(request):
     if request.user.is_authenticated:
         # ✅ Logged-in user: Fetch cart from DB
         cart_items = CartItem.objects.filter(user=request.user)
-        cart_subtotal = sum(item.get_total_price() for item in cart_items)
+        cart_subtotal = sum(item.total_price for item in cart_items)
     else:
         # ✅ Guest user: Use session-based cart
         cart = request.session.get("cart", {})
@@ -256,15 +317,24 @@ def user_login(request):
     return render(request, "myApp/checkout.html")
 
 
+from django.http import JsonResponse
+from .models import Cart, CartItem
+
 def cart_count(request):
     if request.user.is_authenticated:
         cart = Cart.objects.filter(user=request.user).first()
         count = CartItem.objects.filter(cart=cart).count() if cart else 0
     else:
-        cart = request.session.get("cart", {})
-        count = sum(item["quantity"] for item in cart.values())
+        session_id = request.session.get("session_id")
+        cart = Cart.objects.filter(session_id=session_id).first()
+        count = CartItem.objects.filter(cart=cart).count() if cart else 0
 
-    return JsonResponse({"count": count})
+    return JsonResponse({
+        "success": True,
+        "message": "Item added to cart!",
+        "cart_count": count
+    })
+
 
 
 from django.http import JsonResponse
@@ -315,17 +385,19 @@ def login_view(request):
 
 
 from django.shortcuts import render
-from .models import TeamMember, Testimonial, Blog
+from .models import TeamMember, Testimonial, Blog, AboutSection
 
 def about(request):
     team_members = TeamMember.objects.all()
     testimonials = Testimonial.objects.all()
     latest_blogs = Blog.objects.order_by("-published_date")[:3]  # ✅ FIXED FIELD NAME
+    about_sections = AboutSection.objects.all().order_by('order')
 
     return render(request, "myApp/about.html", {
         "team_members": team_members,
         "testimonials": testimonials,
         "latest_blogs": latest_blogs,
+        "about_sections": about_sections,
     })
 
 
@@ -353,34 +425,49 @@ def contact(request):
         messages.success(request, "Thank you for reaching out! We'll get back to you soon.")
         return redirect('contact')
 
+    context.update(cart_context(request))
     return render(request, 'myApp/contact.html')
 
 
-
+# views.py
+from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from .models import Product, CartItem
+from .models import Product, CartItem, Cart
+import json
+import uuid
 
+@csrf_exempt
 def update_cart_quantity(request, product_id):
-    """ Updates quantity of an item in cart """
+    """ Updates the quantity of an item in the cart via AJAX """
     if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            new_quantity = int(data.get("quantity", 1))
+        except (ValueError, json.JSONDecodeError):
+            return JsonResponse({"success": False, "error": "Invalid data"}, status=400)
+
         product = get_object_or_404(Product, id=product_id)
-        new_quantity = int(request.POST.get("quantity", 1))
 
         if request.user.is_authenticated:
-            cart_item, _ = CartItem.objects.get_or_create(user=request.user, product=product)
-            cart_item.quantity = new_quantity
-            cart_item.save()
+            cart, _ = Cart.objects.get_or_create(user=request.user)
+            cart_item, _ = CartItem.objects.get_or_create(cart=cart, product=product, user=request.user)
         else:
-            cart = request.session.get("cart", {})
-            if str(product_id) in cart:
-                cart[str(product_id)]["quantity"] = new_quantity
-            request.session["cart"] = cart
+            session_id = request.session.get("session_id")
+            if not session_id:
+                session_id = str(uuid.uuid4())
+                request.session["session_id"] = session_id
+            cart, _ = Cart.objects.get_or_create(session_id=session_id)
+            cart_item, _ = CartItem.objects.get_or_create(cart=cart, product=product, user=None)
 
-        return JsonResponse({"success": True})
-    
+        cart_item.quantity = new_quantity
+        cart_item.save()
 
-    from django.http import JsonResponse
+        return JsonResponse({"success": True, "new_quantity": cart_item.quantity})
+
+    return JsonResponse({"success": False, "error": "Invalid request method"}, status=405)
+
+
 
 def calculate_shipping(request):
     if request.method == "POST":
@@ -414,6 +501,7 @@ def product_detail(request, id):
     # ✅ Fetch product reviews
     reviews = Review.objects.filter(product=product)
 
+    context.update(cart_context(request))
     return render(request, 'myApp/product_detail.html', {
         'product': product,
         'related_products': related_products,
@@ -558,3 +646,5 @@ def add_comment(request, slug):
             return redirect("blog_details", slug=blog.slug)
 
     return redirect("blog_details", slug=blog.slug)
+
+

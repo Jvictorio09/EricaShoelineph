@@ -43,8 +43,7 @@
                                     <div class="swiper-wrapper">
                                         
                                         <div class="swiper-slide">
-                                            <a class="lightbox-image" data-fancybox="gallery" href="{{ product.image.url }}">
-                                                <img src="{{ product.image.url }}" width="570" height="541" alt="{{ product.name }}">
+                                            <a class="lightbox-image" data-fancybox="gallery" href="{{ product.get_image_url }}">                                                <img src="{{ product.image.url }}" width="570" height="541" alt="{{ product.name }}">
                                             </a>
                                         </div>
                                     
@@ -359,61 +358,5 @@
   </main>
 
 <!-- JavaScript to Handle Add to Cart -->
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        updateCartCount(); // Load cart count on page load
-        
-        document.getElementById("addToCartBtn").addEventListener("click", function () {
-        let productId = this.getAttribute("data-product-id");
-        let quantity = document.querySelector(".pro-qty input").value;
-
-        fetch(`/cart/add/${productId}/`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": getCookie("csrftoken"),
-            },
-            body: JSON.stringify({ quantity: quantity }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                updateCartCount();
-                alert(data.message);
-            } else {
-                alert("Error: " + data.error);
-            }
-        })
-        .catch(error => console.error("Error adding to cart:", error));
-    });
-
-    function updateCartCount() {
-        fetch("/cart/count/")
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("cart-count").textContent = data.cart_count;
-            })
-            .catch(error => console.error("Error updating cart count:", error));
-    }
-
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== "") {
-            const cookies = document.cookie.split(";");
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.startsWith(name + "=")) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-        
-        
-    });
-    </script>
-    
 
 {% endblock %}

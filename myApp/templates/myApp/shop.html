@@ -65,8 +65,10 @@
                                                         <img src="{{ product.image.url }}" width="270" height="274" alt="{{ product.name }}">
                                                     </a>
                                                     <div class="product-action">
-                                                        <a class="btn-product-wishlist" href="#"><i class="fa fa-heart"></i></a>
-                                                        <a class="btn-product-cart" href="#"><i class="fa fa-shopping-cart"></i></a>
+                                                        
+                                                        <a class="btn-product-cart quick-add-to-cart" data-product-id="{{ product.id }}">
+                                                            <i class="fa fa-shopping-cart"></i>
+                                                        </a>                                                        
                                                         <button type="button" class="btn-product-quick-view-open" onclick="openQuickView({{ product.id }})">
                                                             <i class="fa fa-arrows"></i>
                                                         </button>
@@ -78,10 +80,10 @@
                                                     </h4>
                                                     <div class="prices">
                                                         {% if product.discount_price %}
-                                                        <span class="price-old">${{ product.price }}</span>
-                                                        <span class="price">${{ product.get_price }}</span>
+                                                        <span class="price-old">₱{{ product.price }}</span>
+                                                        <span class="price">₱{{ product.get_price }}</span>
                                                         {% else %}
-                                                        <span class="price">${{ product.price }}</span>
+                                                        <span class="price">₱{{ product.price }}</span>
                                                         {% endif %}
                                                     </div>
                                                 </div>
@@ -260,7 +262,7 @@
                             <div class="pro-qty">
                                 <input type="text" id="quick-view-quantity" title="Quantity" value="1" />
                             </div>
-                            <button class="btn btn-black" onclick="addToCart()">Add to cart</button>
+                            <button class="quick-add-to-cart btn btn-black">Add to cart</button>
                         </div>
                     </div>
                 </div>
@@ -272,149 +274,6 @@
     <div class="canvas-overlay" onclick="closeQuickView()"></div>
 </aside>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        loadCartItems(); // Load cart items on page load
-    });
-    
-    // ✅ OPEN QUICK VIEW MODAL & FETCH PRODUCT DETAILS
-    function openQuickView(productId) {
-        fetch(`/quick-view/${productId}/`)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("quick-view-title").innerText = data.name;
-                document.getElementById("quick-view-description").innerText = data.description;
-                document.getElementById("quick-view-image").src = data.image_url;
-                document.getElementById("quick-view-price").innerText = `₱${data.price}`;
-                
-                // Handle old price if available
-                let oldPriceEl = document.getElementById("quick-view-old-price");
-                if (data.old_price) {
-                    oldPriceEl.innerText = `₱${data.old_price}`;
-                    oldPriceEl.style.display = "inline";  // Show if available
-                } else {
-                    oldPriceEl.style.display = "none"; // Hide if not available
-                }
-    
-                // ✅ Populate Size Dropdown
-                let sizeSelect = document.getElementById("quickViewSize");
-                sizeSelect.innerHTML = '<option value="">Select a size</option>';
-                data.sizes.forEach(size => {
-                    let option = document.createElement("option");
-                    option.value = size;
-                    option.innerText = size;
-                    sizeSelect.appendChild(option);
-                });
-    
-                // ✅ Populate Color Dropdown
-                let colorSelect = document.getElementById("quickViewColor");
-                colorSelect.innerHTML = '<option value="">Select a color</option>';
-                data.colors.forEach(color => {
-                    let option = document.createElement("option");
-                    option.value = color;
-                    option.innerText = color;
-                    colorSelect.appendChild(option);
-                });
-    
-                // ✅ Show Quick View Modal
-                document.getElementById("productQuickView").style.display = "block";
-            })
-            .catch(error => console.error("Error loading Quick View:", error));
-    }
-    
-    // ✅ CLOSE QUICK VIEW MODAL
-    function closeQuickView() {
-        document.getElementById("productQuickView").style.display = "none";
-    }
-    
-    // ✅ ADD PRODUCT TO CART
-    function addToCart(productId) {
-        let quantity = document.getElementById("quick-view-quantity").value || 1;
-        
-        fetch(`/cart/add/${productId}/`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": getCookie("csrftoken") // Ensure CSRF token for Django security
-            },
-            body: JSON.stringify({ quantity: parseInt(quantity) }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert("Product added to cart!");
-                loadCartItems();
-            } else {
-                alert("Error adding to cart!");
-            }
-        })
-        .catch(error => console.error("Error adding to cart:", error));
-    }
-    
-    // ✅ LOAD CART ITEMS (FOR SIDEBAR)
-    function loadCartItems() {
-        fetch("/cart-data/")
-            .then(response => response.json())
-            .then(data => {
-                let cartList = document.getElementById("cart-items");
-                let cartSubtotal = document.getElementById("cart-subtotal");
-                cartList.innerHTML = "";
-                let subtotal = 0;
-    
-                if (data.items.length === 0) {
-                    cartList.innerHTML = `<li class="empty-cart">Your cart is empty.</li>`;
-                }
-    
-                data.items.forEach(item => {
-                    let cartItem = document.createElement("li");
-                    cartItem.classList.add("product-list-item");
-                    cartItem.innerHTML = `
-                        <a href="#" class="remove" onclick="removeFromCart(${item.id})">×</a>
-                        <a href="/product/${item.id}">
-                            <img src="${item.image}" width="90" height="110" alt="${item.name}">
-                            <span class="product-title">${item.name}</span>
-                        </a>
-                        <span class="product-price">${item.quantity} × ₱${item.price}</span>
-                    `;
-                    cartList.appendChild(cartItem);
-                    subtotal += item.quantity * item.price;
-                });
-    
-                cartSubtotal.innerText = `₱${subtotal.toFixed(2)}`;
-            })
-            .catch(error => console.error("Error loading cart:", error));
-    }
-    
-    // ✅ REMOVE ITEM FROM CART
-    function removeFromCart(productId) {
-        fetch(`/remove-from-cart/${productId}/`, {
-            method: "POST",
-            headers: { "X-CSRFToken": getCookie("csrftoken") },
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                loadCartItems();
-            }
-        })
-        .catch(error => console.error("Error removing item:", error));
-    }
-    
-    // ✅ GET CSRF TOKEN FUNCTION
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-    </script>
-    
+
+
 {% endblock %}

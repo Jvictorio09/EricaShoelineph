@@ -1,94 +1,44 @@
 {% load static %}
 <div class="aside-cart-wrapper offcanvas offcanvas-end" tabindex="-1" id="AsideOffcanvasCart" aria-labelledby="offcanvasRightLabel">
     <div class="offcanvas-header">
-        <h5 class="offcanvas-title">Shopping Cart</h5>
         <button class="btn-aside-cart-close" data-bs-dismiss="offcanvas" aria-label="Close">
-            <i class="fa fa-chevron-right"></i>
+            Shopping Cart<i class="fa fa-chevron-right"></i>
         </button>
     </div>
-    
+
     <div class="offcanvas-body">
-        <ul class="aside-cart-product-list" id="cart-items">
-            <!-- Cart items will be dynamically inserted here -->
+        <ul class="aside-cart-product-list" id="side-cart-items">
+            {% if cart_items %}
+                {% for item in cart_items %}
+                    <li class="product-list-item">
+                        <a href="#" class="remove remove-item" data-cart-item-id="{{ item.id }}">×</a>
+
+                        <a href="{% url 'product_detail' item.product.id %}">
+                            <img src="{{ item.product.image.url }}" width="90" height="110" alt="{{ item.product.name }}">
+                            <span class="product-title">{{ item.product.name }}</span>
+                        </a>
+
+                        <!-- Quantity x Price -->
+                        <span class="product-price">
+                            {{ item.quantity }} x ₱{{ item.product.get_price|floatformat:2 }}
+                        </span>
+                    </li>
+                {% endfor %}
+            {% else %}
+                <li><span>Your cart is empty.</span></li>
+            {% endif %}
         </ul>
-        
-        <p class="cart-total"><span>Subtotal:</span> <span class="amount" id="cart-subtotal">₱0.00</span></p>
+
+        <p class="cart-total">
+            <span>Subtotal:</span>
+            <span class="amount" id="cart-subtotal">₱{{ cart_subtotal|floatformat:2 }}</span>
+        </p>
 
         <a class="btn-theme" href="{% url 'cart' %}">View Cart</a>
         <a class="btn-theme" href="{% url 'checkout' %}">Checkout</a>
+
         <a class="d-block text-end lh-1" href="{% url 'checkout' %}">
             <img src="{% static 'assets/img/photos/paypal.webp' %}" width="133" height="26" alt="PayPal">
         </a>
     </div>
 </div>
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    loadCartItems(); // Load cart items when the page loads
-
-    function loadCartItems() {
-        fetch("/cart-data/")
-            .then(response => response.json())
-            .then(data => {
-                let cartList = document.getElementById("cart-items");
-                let cartSubtotal = document.getElementById("cart-subtotal");
-                cartList.innerHTML = "";
-                let subtotal = 0;
-
-                if (data.items.length === 0) {
-                    cartList.innerHTML = `<li class="empty-cart">Your cart is empty.</li>`;
-                }
-
-                data.items.forEach(item => {
-                    let cartItem = document.createElement("li");
-                    cartItem.classList.add("product-list-item");
-                    cartItem.innerHTML = `
-                        <a href="#" class="remove" onclick="removeFromCart(${item.id})">×</a>
-                        <a href="/product/${item.id}">
-                            <img src="${item.image}" width="90" height="110" alt="${item.name}">
-                            <span class="product-title">${item.name}</span>
-                        </a>
-                        <span class="product-price">${item.quantity} × ₱${item.price}</span>
-                    `;
-                    cartList.appendChild(cartItem);
-                    subtotal += item.quantity * item.price;
-                });
-
-                cartSubtotal.innerText = `₱${subtotal.toFixed(2)}`;
-            })
-            .catch(error => console.error("Error loading cart:", error));
-    }
-
-    function removeFromCart(productId) {
-        fetch(`/remove-from-cart/${productId}/`, {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": getCookie("csrftoken"),
-                "Content-Type": "application/json"
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                loadCartItems();
-            }
-        })
-        .catch(error => console.error("Error removing item:", error));
-    }
-
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== "") {
-            const cookies = document.cookie.split(";");
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.startsWith(name + "=")) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-});
-</script>

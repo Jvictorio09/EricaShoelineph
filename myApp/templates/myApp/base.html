@@ -36,6 +36,8 @@
 
 
 <body>
+    <div id="toast"></div>
+
 
     <!-- Header -->
     {% include 'myApp/header.html' %}
@@ -45,11 +47,15 @@
     <main>
         {% block content %}{% endblock %}
     </main>
+    {% include "myApp/aside_cart.html" %}
 
     <!-- Footer -->
+    
     {% include 'myApp/footer.html' %}
 
     <!-- Scripts -->
+    <script src="{% static 'assets/js/cart.js' %}"></script>
+
     <script src="{% static 'assets/js/modernizr.js' %}"></script>
     <script src="{% static 'assets/js/jquery-main.js' %}"></script>
     <script src="{% static 'assets/js/jquery-migrate.js' %}"></script>
@@ -65,5 +71,7 @@
 
     {% block extra_scripts %}{% endblock %}
 
+    
 </body>
 </html>
+

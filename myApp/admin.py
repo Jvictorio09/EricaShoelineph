@@ -1,21 +1,59 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.utils.safestring import mark_safe
 from .models import (
     Product, Category, Size, Color, Blog, Tag, SpecialOffer,
-    Feature, ProductCollection, Testimonial
+    Feature, ProductCollection, Testimonial, AboutSection
 )
 
 # ---- CATEGORY ADMIN ----
+
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("name", "get_blog_count")
+    list_display = ("name", "is_main_header", "show_on_homepage", "get_blog_count")
+    list_filter = ("is_main_header", "show_on_homepage")
     search_fields = ("name",)
+    fields = ("name", "discount_text", "image", "is_main_header", "show_on_homepage")
+    actions = ["mark_show_on_homepage", "remove_from_homepage"]
 
     def get_blog_count(self, obj):
-        """Display count of blogs per category."""
         return obj.blogs.count()
 
     get_blog_count.short_description = "Blog Count"
+
+    def mark_show_on_homepage(self, request, queryset):
+        # Count current categories set to show on homepage
+        current_count = Category.objects.filter(show_on_homepage=True).count()
+        selected_count = queryset.count()
+
+        # Calculate how many new items will be added
+        to_add = [obj for obj in queryset if not obj.show_on_homepage]
+        if current_count + len(to_add) > 3:
+            self.message_user(
+                request,
+                f"🚫 You can only have up to 3 categories on the homepage. Currently showing: {current_count}, trying to add: {len(to_add)}.",
+                level=messages.ERROR,
+            )
+            return
+
+        # Update
+        updated = queryset.update(show_on_homepage=True)
+        self.message_user(
+            request,
+            f"✅ {updated} categories marked as 'Show on Homepage'.",
+            level=messages.SUCCESS,
+        )
+
+    mark_show_on_homepage.short_description = "📌 Mark selected categories to show on homepage (max 3)"
+
+    def remove_from_homepage(self, request, queryset):
+        updated = queryset.update(show_on_homepage=False)
+        self.message_user(
+            request,
+            f"🧹 {updated} categories removed from homepage.",
+            level=messages.SUCCESS,
+        )
+
+    remove_from_homepage.short_description = "🚫 Remove selected categories from homepage"
 
 # ---- BLOG ADMIN ----
 @admin.register(Blog)
@@ -57,9 +95,9 @@ class ColorAdmin(admin.ModelAdmin):
 # ---- PRODUCT ADMIN ----
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("name", "category", "price", "discount_price", "best_seller", "get_sizes", "get_colors")
-    search_fields = ("name", "category__name")
-    list_filter = ("category", "best_seller", "sizes", "colors")
+    list_display = ("name", "category", "price", "discount_price", "best_seller", "price_range", "get_sizes", "get_colors")
+    search_fields = ("name", "category__name", "price_range")  # Adding price_range to search
+    list_filter = ("category", "best_seller", "sizes", "colors", "price_range")  # Adding price_range to filter options
     autocomplete_fields = ("category",)
     filter_horizontal = ("sizes", "colors")
 
@@ -72,6 +110,7 @@ class ProductAdmin(admin.ModelAdmin):
         return ", ".join(color.name for color in obj.colors.all())
 
     get_colors.short_description = "Available Colors"
+
 
 @admin.register(Size)
 class SizeAdmin(admin.ModelAdmin):
@@ -132,3 +171,9 @@ class TestimonialAdmin(admin.ModelAdmin):
 
     feedback_preview.short_description = "Feedback"
     image_preview.short_description = "Preview"
+
+
+@admin.register(AboutSection)
+class AboutSectionAdmin(admin.ModelAdmin):
+    list_display = ['title', 'order', 'is_reversed']
+    ordering = ['order']

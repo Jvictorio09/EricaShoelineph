@@ -4,28 +4,28 @@
 {% block content %}
 <div class="wrapper">
         <main class="main-content">
-
             <!--== Start Hero Area Wrapper ==-->
             <section class="home-slider-area">
                 <div class="swiper-container home-slider-container default-slider-container">
                     <div class="swiper-wrapper home-slider-wrapper slider-default">
-                        {% for category in categories %}
-                        <div class="swiper-slide">
-                            <div class="slider-content-area slider-content-area-two" data-bg-img="{{ category.image.url }}">
-                                <div class="container">
-                                    <div class="slider-container">
-                                        <div class="row justify-content-between align-items-center">
-                                            <div class="col-lg-5">
-                                                <div class="slider-content">
-                                                    <div class="content">
-                                                        <div class="desc-box">
-                                                            <p class="desc">{{ category.discount_text }}</p>
-                                                        </div>
-                                                        <div class="title-box">
-                                                            <h2 class="title"><span class="font-weight-400">{{ category.name }}</span></h2>
-                                                        </div>
-                                                        <div class="btn-box">
-                                                            <a class="btn-slider" href="{% url 'shop_category' category.id %}">Shop Now</a>
+                        {% if main_category %}
+                            <div class="swiper-slide">
+                                <div class="slider-content-area slider-content-area-two" data-bg-img="{{ main_category.image.url }}">
+                                    <div class="container">
+                                        <div class="slider-container">
+                                            <div class="row justify-content-between align-items-center">
+                                                <div class="col-lg-5">
+                                                    <div class="slider-content">
+                                                        <div class="content">
+                                                            <div class="desc-box">
+                                                                <p class="desc">{{ main_category.discount_text }}</p>
+                                                            </div>
+                                                            <div class="title-box">
+                                                                <h2 class="title"><span class="font-weight-400">{{ main_category.name }}</span></h2>
+                                                            </div>
+                                                            <div class="btn-box">
+                                                                <a class="btn-slider" href="{% url 'shop' %}">Shop Now</a>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -34,8 +34,8 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        {% endfor %}
+                            {% endif %}
+
                     </div>
 
                     <!--== Add Swiper Arrows ==-->
@@ -102,19 +102,21 @@
                                             </ul>
                                         </div>
                                         <div class="product-action">
-                                            <a class="btn-product-wishlist" href="#"><i class="fa fa-heart"></i></a>
-                                            <a class="btn-product-cart" href="#"><i class="fa fa-shopping-cart"></i></a>
+                                            <a class="btn-product-cart" id="addToCartBtn" data-product-id="{{ product.id }}"><i class="fa fa-shopping-cart"></i></a>
+                                            <button type="button" class="btn-product-quick-view-open" onclick="openQuickView({{ product.id }})">
+                                                <i class="fa fa-arrows"></i>
+                                            </button>
                                         </div>
                                     </div>
                                     <div class="product-info">
                                         <h4 class="title"><a href="{% url 'product_detail' product.id %}">{{ product.name }}</a></h4>
                                         <div class="prices">
                                             {% if product.discount_price %}
-                                            <span class="price-old">${{ product.price }}</span>
+                                            <span class="price-old">₱{{ product.price }}</span>
                                             <span class="sep">-</span>
-                                            <span class="price">${{ product.get_discount_price }}</span>
+                                            <span class="price">₱{{ product.get_discount_price }}</span>
                                             {% else %}
-                                            <span class="price">${{ product.price }}</span>
+                                            <span class="price">₱{{ product.price }}</span>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -132,17 +134,17 @@
                 <div class="container pt--0 pb--0">
                     <div class="row divider-wrap divider-style3">
                         <div class="col-lg-6">
-                            <div class="divider-thumb mousemove">
+                            <div class="divider-thumb">
                                 <div class="shape-one scene">
                                     <span class="scene-layer" data-depth=".5">
                                         <img src="{{ special_offer.image1.url }}" width="377" height="243" alt="Offer Image">
                                     </span>
                                 </div>
-                                <div class="shape-two mousemove-layer" data-speed="1">
-                                    <img src="{{ special_offer.image2.url }}" width="532" height="326" alt="Offer Shape">
+                                <div class="shape-two" data-speed="1">
+                                    <img src="{% static 'assets/img/shape/4.webp' %}" width="532" height="326" alt="Offer Shape">
                                 </div>
                                 <div class="shape-three">
-                                    <img src="{{ special_offer.image3.url }}" width="280" height="339" alt="Offer Shape">
+                                    <img src="{% static 'assets/img/shape/5.webp' %}" width="280" height="339" alt="Offer Shape">
                                 </div>
                             </div>
                         </div>
@@ -229,12 +231,10 @@
                                                 </ul>
                                             </div>
                                             <div class="product-action">
-                                                <a class="btn-product-wishlist" href="#"><i class="fa fa-heart"></i></a>
-                                                <a class="btn-product-cart" href="#"><i class="fa fa-shopping-cart"></i></a>
-                                                <button type="button" class="btn-product-quick-view-open">
-                                                    <i class="fa fa-arrows"></i>
-                                                </button>
-                                                <a class="btn-product-compare" href="#"><i class="fa fa-random"></i></a>
+                                                <a class="btn-product-cart" id="addToCartBtn" data-product-id="{{ product.id }}"><i class="fa fa-shopping-cart"></i></a>
+                                                        <button type="button" class="btn-product-quick-view-open" onclick="openQuickView({{ product.id }})">
+                                                            <i class="fa fa-arrows"></i>
+                                                        </button>
                                             </div>
                                         </div>
                                         <div class="product-info">
@@ -250,11 +250,11 @@
                                             </h4>
                                             <div class="prices">
                                                 {% if product.discount_price %}
-                                                <span class="price-old">${{ product.price }}</span>
+                                                <span class="price-old">₱{{ product.price }}</span>
                                                 <span class="sep">-</span>
-                                                <span class="price">${{ product.get_price }}</span>
+                                                <span class="price">₱{{ product.get_price }}</span>
                                                 {% else %}
-                                                <span class="price">${{ product.price }}</span>
+                                                <span class="price">₱{{ product.price }}</span>
                                                 {% endif %}
                                             </div>
                                         </div>
@@ -294,7 +294,7 @@
                   <h3 class="title">
                     <a href="{% url 'shop_category' collection.id %}">{{ collection.name }}</a>
                   </h3>
-                  <h4 class="price">From ${{ collection.price }}</h4>
+                  <h4 class="price">From ₱{{ collection.price }}</h4>
                 </div>
               </div>
               <div class="product-collection-thumb" data-bg-img="{{ collection.image.url }}"></div>

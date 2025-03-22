@@ -2,18 +2,41 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Avg
 from django.utils.text import slugify
-import uuid  # For guest session ID
+from cloudinary.models import CloudinaryField
+from django.core.exceptions import ValidationError
 
 # ----------------------------------------
 # CATEGORY MODEL
 # ----------------------------------------
+
+
 class Category(models.Model):
     name = models.CharField(max_length=100)
     discount_text = models.CharField(max_length=50, blank=True, null=True)
-    image = models.ImageField(upload_to="category_images/", default="default_category.jpg")
+    image = CloudinaryField('image', folder="ericashoeline/category_images/")
+    is_main_header = models.BooleanField(default=False, help_text="✅ Show as the main homepage slider (only one)")
+    show_on_homepage = models.BooleanField(default=False, help_text="✅ Show in the 3-category section (max 3)")
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        if self.is_main_header:
+            count = Category.objects.filter(is_main_header=True).exclude(id=self.id).count()
+            if count >= 1:
+                raise ValidationError("🚫 Only one category can be marked as main header.")
+        
+        if self.show_on_homepage:
+            count = Category.objects.filter(show_on_homepage=True).exclude(id=self.id).count()
+            if count >= 3:
+                raise ValidationError("🚫 Only 3 categories can be shown on the homepage category section.")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()  # Triggers clean()
+        super().save(*args, **kwargs)
+        if self.image:
+            print(f"📦 Cloudinary Image URL for Category '{self.name}': {self.image.url}")
+
 
 # ----------------------------------------
 # SIZE MODEL
@@ -25,11 +48,11 @@ class Size(models.Model):
         return self.name
 
 # ----------------------------------------
-# COLOR MODEL (WITH ADMIN SUPPORT)
+# COLOR MODEL
 # ----------------------------------------
 class Color(models.Model):
     name = models.CharField(max_length=50, unique=True)
-    hex_code = models.CharField(max_length=7, unique=True, help_text="Pick a color", default="#000000")  # Default black color
+    hex_code = models.CharField(max_length=7, unique=True, help_text="Pick a color", default="#000000")
 
     def __str__(self):
         return f"{self.name} ({self.hex_code})"
@@ -38,21 +61,38 @@ class Color(models.Model):
 # PRODUCT MODEL
 # ----------------------------------------
 class Product(models.Model):
+    PRICE_RANGE_CHOICES = [
+        ('500-1000', '₱500 - ₱1,000'),
+        ('1000-2000', '₱1,000 - ₱2,000'),
+        ('3000-5000', '₱3,000 - ₱5,000'),
+    ]
+
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     discount_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    image = models.ImageField(upload_to="product_images/", default="default_product.jpg")
+    image = CloudinaryField('image', folder="ericashoeline/product_images/")
     best_seller = models.BooleanField(default=False)
     sizes = models.ManyToManyField(Size, blank=True)
-    colors = models.ManyToManyField(Color, blank=True)  # Allow multiple colors for a product
+    colors = models.ManyToManyField(Color, blank=True)
+    price_range = models.CharField(max_length=20, choices=PRICE_RANGE_CHOICES, blank=True, null=True)
 
     def __str__(self):
         return self.name
 
     def get_price(self):
-        return self.discount_price if self.discount_price else self.price
+        if self.discount_price:
+            return self.discount_price
+        if self.price:
+            return self.price
+        return self.estimated_price_from_range()
+
+    def estimated_price_from_range(self):
+        if self.price_range:
+            min_price, max_price = map(int, self.price_range.split('-'))
+            return (min_price + max_price) / 2
+        return 0
 
     @property
     def get_discount_percentage(self):
@@ -65,31 +105,35 @@ class Product(models.Model):
         return round(average, 1) if average else 0
 
 # ----------------------------------------
-# CART AND CARTITEM (FIXED FOR GUEST USERS)
+# CART & CARTITEM MODEL
 # ----------------------------------------
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
-    session_id = models.CharField(max_length=255, blank=True, null=True)  # Store session ID for guests
+    session_id = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def get_total_price(self):
-        return sum(item.get_total_price() for item in self.cart_items.all())
+        return sum(item.total_price for item in self.cart_items.all())
+
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="cart_items", null=True, blank=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)  # Allow NULL for guest users
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name} ({self.user.username if self.user else 'Guest'})"
-
+    
+   
     @property
-    def get_total_price(self):
+    def total_price(self):
         return self.quantity * self.product.get_price()
 
+
+
 # ----------------------------------------
-# BLOG & COMMENTS (ALLOW GUEST COMMENTS)
+# BLOG & COMMENTS
 # ----------------------------------------
 class Blog(models.Model):
     title = models.CharField(max_length=255)
@@ -97,7 +141,7 @@ class Blog(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="blogs", default=1)
     author = models.CharField(max_length=100)
     published_date = models.DateField(auto_now_add=True)
-    image = models.ImageField(upload_to="blog_images/")
+    image = CloudinaryField('image', folder="ericashoeline/blog_images/")
     content = models.TextField()
     tags = models.ManyToManyField('Tag', blank=True, related_name="blogs")
     is_active = models.BooleanField(default=True)
@@ -112,9 +156,9 @@ class Blog(models.Model):
 
 class Comment(models.Model):
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE, related_name="comments")
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)  # Allow NULL users
-    guest_name = models.CharField(max_length=100, blank=True, null=True)  # Guest name
-    guest_email = models.EmailField(blank=True, null=True)  # Guest email
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    guest_name = models.CharField(max_length=100, blank=True, null=True)
+    guest_email = models.EmailField(blank=True, null=True)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     parent = models.ForeignKey("self", null=True, blank=True, on_delete=models.CASCADE, related_name="replies")
@@ -142,38 +186,33 @@ class Review(models.Model):
     def __str__(self):
         return f"Review by {self.user.username} on {self.product.name}"
 
-
 class SpecialOffer(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     discount_percentage = models.IntegerField()
-    bg_image = models.ImageField(upload_to='offers/')
-    image1 = models.ImageField(upload_to='offers/')
-    image2 = models.ImageField(upload_to='offers/')
-    image3 = models.ImageField(upload_to='offers/')
+    bg_image = CloudinaryField('image', folder="ericashoeline/offers/")
+    image1 = CloudinaryField('image', folder="ericashoeline/offers/")
+    image2 = CloudinaryField('image', folder="ericashoeline/offers/")
+    image3 = CloudinaryField('image', folder="ericashoeline/offers/")
 
     def __str__(self):
         return self.title
-    
-from django.db import models
 
 class Feature(models.Model):
     title = models.CharField(max_length=255)
-    icon = models.ImageField(upload_to='features/')
+    icon = CloudinaryField('image', folder="ericashoeline/features/")
 
     def __str__(self):
         return self.title
-    
 
 class ProductCollection(models.Model):
     name = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    image = models.ImageField(upload_to="collections/")
+    image = CloudinaryField('image', folder="ericashoeline/collections/")
+    
 
-
-
-
-from django.db import models
+    def __str__(self):
+        return self.name
 
 class Brand(models.Model):
     name = models.CharField(max_length=255, unique=True)
@@ -181,26 +220,18 @@ class Brand(models.Model):
     def __str__(self):
         return self.name
 
-
-from django.db import models
-
 class Coupon(models.Model):
     code = models.CharField(max_length=50, unique=True)
     discount_percentage = models.PositiveIntegerField()
     is_active = models.BooleanField(default=True)
-    
+
     def __str__(self):
         return self.code
 
-
-from django.db import models
-from django.contrib.auth.models import User
-
-# Team Member Model
 class TeamMember(models.Model):
     name = models.CharField(max_length=255)
     position = models.CharField(max_length=255)
-    image = models.ImageField(upload_to="team/")
+    image = CloudinaryField('image', folder="ericashoeline/team/")
     facebook = models.URLField(blank=True, null=True)
     dribbble = models.URLField(blank=True, null=True)
     pinterest = models.URLField(blank=True, null=True)
@@ -208,13 +239,24 @@ class TeamMember(models.Model):
     def __str__(self):
         return self.name
 
-from django.db import models
-
 class Testimonial(models.Model):
     name = models.CharField(max_length=255)
     feedback = models.TextField()
-    image = models.ImageField(upload_to="testimonials/")
-    date_posted = models.DateField(default="2025-01-01")  # Set a default
+    image = CloudinaryField('image', folder="ericashoeline/testimonials/")
+    date_posted = models.DateField(default="2025-01-01")
 
     def __str__(self):
         return f"{self.name} - {self.date_posted}"
+
+
+
+class AboutSection(models.Model):
+    title = models.CharField(max_length=255, blank=True, null=True)
+    subtitle = models.CharField(max_length=255, blank=True, null=True)
+    description = models.TextField()
+    image = CloudinaryField('image', folder="ericashoeline/about/")
+    is_reversed = models.BooleanField(default=False, help_text="✅ Reverse the row for image on right, text on left")
+    order = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.title} - Section {self.order}"
