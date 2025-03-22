@@ -31,7 +31,7 @@ urlpatterns = [
     
     path("apply-coupon/", views.apply_coupon, name="apply_coupon"),
     path("about/", views.about, name="about"),
-    path('contact/', views.contact, name='contact'),
+    path('contact/', views.contact_view, name='contact'),
     path("cart/count/", views.cart_count, name="cart_count"),
 
     path("calculate-shipping/", views.calculate_shipping, name="calculate_shipping"),

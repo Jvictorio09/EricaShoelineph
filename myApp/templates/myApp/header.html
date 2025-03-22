@@ -9,7 +9,7 @@
                     <div class="header-top-align">
                         <div class="header-top-align-start">
                             <div class="desc">
-                                <p>👠 Elevate Your Confidence with ERICA Shoeline PH</p>
+                                <p>ERICA SHOELINE PH, your shoe femininity./p>
                             </div>
                         </div>
                         <div class="header-top-align-end">
@@ -85,7 +85,7 @@
                                     </button>
                                 </div>
                                 
-                                <button class="btn-menu" type="button">
+                                <button class="btn-menu" type="button" data-bs-toggle="offcanvas" data-bs-target="#AsideOffcanvasMenu" aria-controls="AsideOffcanvasMenu">
                                     <i class="pe-7s-menu"></i>
                                 </button>
                             </div>
@@ -119,17 +119,169 @@
     </div>
     <!--== End Navigation ==-->
 </header>
+<div style="background-color: #fdf7f6; color: #4b2e2e; padding: 20px;" class="off-canvas-wrapper offcanvas offcanvas-start" tabindex="-1" id="AsideOffcanvasMenu" aria-labelledby="offcanvasExampleLabel">
+    <div class="offcanvas-header d-flex justify-content-between align-items-center mb-4">
+        <button class="btn border-0" data-bs-dismiss="offcanvas" aria-label="Close" style="color: #4b2e2e; font-size: 28px;">×</button>
+        
+        <img src="{% static 'assets/img/erica_logo.png' %}" alt="Logo" style="height: 30px;" />
+        
+        <div style="display: flex; gap: 14px;">
+          <button type="button" id="cartToggleAside" class="basket-btn">
+            <i class="fa fa-shopping-bag"></i>
+            <sup class="shop-count" id="cart-count">
+              {% if cart_count %}{{ cart_count }}{% else %}0{% endif %}
+            </sup>
+          </button>
+        </div>
+      </div>
+      
+  
+    <div class="offcanvas-body d-flex flex-column justify-content-between" style="min-height: 85vh;">
+      <style>
+        #AsideOffcanvasMenu .basket-btn {
+        background: none;
+        border: none;
+        position: relative;
+        padding: 4px 8px;
+        font-size: 18px;
+        color: #4b2e2e;
+        cursor: pointer;
+        }
 
+        #AsideOffcanvasMenu .basket-btn i {
+        font-size: 20px;
+        color: #4b2e2e;
+        }
+
+        #AsideOffcanvasMenu .basket-btn .shop-count {
+        background-color: #4b2e2e;
+        color: #fff;
+        border-radius: 50%;
+        padding: 2px 6px;
+        font-size: 12px;
+        position: absolute;
+        top: -6px;
+        right: -8px;
+        line-height: 1;
+        }
+
+
+        #AsideOffcanvasMenu {
+          font-family: 'Poppins', sans-serif;
+        }
+  
+        #AsideOffcanvasMenu a {
+          color: #4b2e2e !important;
+          text-decoration: none;
+          font-size: 16px;
+          display: block;
+          padding: 12px 0;
+        }
+  
+        #AsideOffcanvasMenu a:hover {
+          background-color: #f4f1f0;
+          padding-left: 5px;
+        }
+  
+        #AsideOffcanvasMenu .nav-menu {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+  
+        #AsideOffcanvasMenu .footer-section {
+          position: relative;
+          padding-top: 40px;
+          text-align: left;
+        }
+  
+        #AsideOffcanvasMenu .footer-section::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 60%;
+          height: 1px;
+          background: linear-gradient(to right, #d6c5c5, transparent);
+          transform: skewY(-3deg);
+        }
+  
+        #AsideOffcanvasMenu .subtext {
+          font-size: 14px;
+          color: #6d4c4c;
+          margin-bottom: 10px;
+        }
+  
+        #AsideOffcanvasMenu .social-icons a {
+          font-size: 18px;
+          margin-right: 16px;
+          color: #4b2e2e !important;
+        }
+
+        #AsideOffcanvasMenu .footer-inline {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 10px;
+        font-size: 14px;
+        color: #6d4c4c;
+        }
+
+        #AsideOffcanvasMenu .footer-inline i {
+        color: #4b2e2e;
+        margin: 0 4px;
+        font-size: 16px;
+        }
+
+        #AsideOffcanvasMenu .footer-inline a {
+        color: #4b2e2e !important;
+        text-decoration: none;
+        }
+
+      </style>
+  
+      <!-- Navigation Menu -->
+      <ul class="nav-menu">
+        <li><a href="{% url 'home' %}"
+            <ul>
+                <span>Home</span> </a></li>
+                                <li><a href="{% url 'about' %}"><span>About</span></a></li>
+                                <li><a href="{% url 'shop' %}"><span>Shop</span></a></li>
+                                <li><a href="{% url 'blog_list' %}"><span>Blog</span></a></li>
+                                <li><a href="{% url 'contact' %}"><span>Contact</span></a></li>
+                            </ul>
+      </ul>
+  
+      <!-- Footer Section -->
+      <div class="footer-section">
+        <p class="subtext"><i class="fa fa-user"></i> <a href="{% url 'login' %}">Log in</a></p>
+        <div class="footer-inline">
+            <span class="subtext">Philippines</span>
+            <span class="separator">|</span>
+            <a href="https://www.instagram.com/erica.shoelineph" target="_blank"><i class="fa fa-instagram"></i></a>
+            <span class="separator">|</span>
+            <a href="https://www.facebook.com/erica.shoelineph" target="_blank"><i class="fa fa-facebook"></i></a>
+          </div>       
+      </div>
+    </div>
+  </div>
+  
 
 {% include 'myApp/aside_cart.html' %}
 
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    let cartToggle = document.getElementById("cartToggle");
-    let cartOffcanvas = new bootstrap.Offcanvas(document.getElementById("AsideOffcanvasCart"));
+    const headerToggle = document.getElementById("cartToggle");
+    const asideToggle = document.getElementById("cartToggleAside");
+    const cartOffcanvas = new bootstrap.Offcanvas(document.getElementById("AsideOffcanvasCart"));
 
-    cartToggle.addEventListener("click", function () {
-        cartOffcanvas.show(); // Open the cart when button is clicked
+    [headerToggle, asideToggle].forEach(button => {
+    if (button) {
+        button.addEventListener("click", () => cartOffcanvas.show());
+    }
     });
 });
 </script>
+
+

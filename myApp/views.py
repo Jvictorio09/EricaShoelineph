@@ -42,7 +42,7 @@ def shop_category(request, id):
     category = get_object_or_404(Category, id=id)
     products = Product.objects.filter(category=category)  # Filter dynamically
     
-    context.update(cart_context(request))
+     
     return render(request, 'myApp/shop_category.html', {
         'category': category,
         'products': products
@@ -78,7 +78,7 @@ def shop(request):
         'brands': brands
     }
     
-    context.update(cart_context(request))
+     
     return render(request, 'myApp/shop.html', context)
 
 
@@ -402,31 +402,58 @@ def about(request):
 
 
 
+
+from django.core.mail import send_mail
+from django.conf import settings
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.core.mail import send_mail
 
-def contact(request):
+def contact_view(request):
     if request.method == 'POST':
+        print("POST received!")  # Debug
+
         name = request.POST.get('name')
         email = request.POST.get('email')
-        subject = request.POST.get('subject', 'No Subject')
+        subject = request.POST.get('subject') or 'General Inquiry'
         message = request.POST.get('message')
 
-        # Sending email (optional)
-        send_mail(
-            f"New Contact Request: {subject}",
-            f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}",
-            'your-email@example.com',  # Replace with your actual email
-            ['admin@example.com'],  # Replace with your admin email
-            fail_silently=False,
-        )
+        full_message = f"""
+        New Contact Submission:
 
-        messages.success(request, "Thank you for reaching out! We'll get back to you soon.")
-        return redirect('contact')
+        Name: {name}
+        Email: {email}
+        Subject: {subject}
+        Message:
+        {message}
+        """
 
-    context.update(cart_context(request))
+        try:
+            # Send to your inbox
+            send_mail(
+                subject=f"Contact Form: {subject}",
+                message=full_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[settings.DEFAULT_FROM_EMAIL],
+            )
+
+            # Auto-reply to user
+            send_mail(
+                subject="We Received Your Message!",
+                message=f"Hi {name},\n\nThanks for reaching out! We'll get back to you shortly.\n\nBlessings,\nThe Team",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[email],
+            )
+
+            messages.success(request, "Your message has been sent successfully!")
+            return redirect('contact')
+
+        except Exception as e:
+            print("Email failed:", e)
+            messages.error(request, "Something went wrong. Please try again later.")
+            return redirect('contact')
+
     return render(request, 'myApp/contact.html')
+
 
 
 # views.py
@@ -501,7 +528,7 @@ def product_detail(request, id):
     # ✅ Fetch product reviews
     reviews = Review.objects.filter(product=product)
 
-    context.update(cart_context(request))
+     
     return render(request, 'myApp/product_detail.html', {
         'product': product,
         'related_products': related_products,
