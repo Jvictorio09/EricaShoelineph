@@ -7,31 +7,14 @@
     </div>
 
     <div class="offcanvas-body">
+        <!-- 🛒 JS will populate this -->
         <ul class="aside-cart-product-list" id="side-cart-items">
-            {% if cart_items %}
-                {% for item in cart_items %}
-                    <li class="product-list-item">
-                        <a href="#" class="remove remove-item" data-cart-item-id="{{ item.id }}">×</a>
-
-                        <a href="{% url 'product_detail' item.product.id %}">
-                            <img src="{{ item.product.image.url }}" width="90" height="110" alt="{{ item.product.name }}">
-                            <span class="product-title">{{ item.product.name }}</span>
-                        </a>
-
-                        <!-- Quantity x Price -->
-                        <span class="product-price">
-                            {{ item.quantity }} x ₱{{ item.product.get_price|floatformat:2 }}
-                        </span>
-                    </li>
-                {% endfor %}
-            {% else %}
-                <li><span>Your cart is empty.</span></li>
-            {% endif %}
+            <!-- Leave empty: JS will fill this dynamically -->
         </ul>
 
         <p class="cart-total">
             <span>Subtotal:</span>
-            <span class="amount" id="cart-subtotal">₱{{ cart_subtotal|floatformat:2 }}</span>
+            <span class="amount" id="cart-subtotal">₱0.00</span> <!-- JS updates this -->
         </p>
 
         <a class="btn-theme" href="{% url 'cart' %}">View Cart</a>

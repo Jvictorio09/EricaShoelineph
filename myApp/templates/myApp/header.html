@@ -53,8 +53,8 @@
                         <div class="header-middle-align-start">
                             <div class="header-logo-area">
                                 <a href="{% url 'home' %}">
-                                    <img class="logo-main" src="{% static 'assets/img/erica_logo.png' %}" width="180" height="50" alt="ERICA Shoeline PH">
-                                    <img class="logo-light" src="{% static 'assets/img/erica_logo.png' %}" width="180" height="50" alt="ERICA Shoeline PH">
+                                    <img class="logo-main" src="{% static 'assets/img/logo.svg' %}" width="180" height="50" alt="ERICA Shoeline PH">
+                                    <img class="logo-light" src="{% static 'assets/img/logo.svg' %}" width="180" height="50" alt="ERICA Shoeline PH">
                                 </a>
                             </div>
                         </div>
@@ -267,21 +267,25 @@
   </div>
   
 
-{% include 'myApp/aside_cart.html' %}
+  {% include "myApp/aside_cart.html" %}
+   
 
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const headerToggle = document.getElementById("cartToggle");
-    const asideToggle = document.getElementById("cartToggleAside");
-    const cartOffcanvas = new bootstrap.Offcanvas(document.getElementById("AsideOffcanvasCart"));
-
-    [headerToggle, asideToggle].forEach(button => {
-    if (button) {
-        button.addEventListener("click", () => cartOffcanvas.show());
-    }
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const headerToggle = document.getElementById("cartToggle");
+        const asideToggle = document.getElementById("cartToggleAside");
+        const cartOffcanvas = new bootstrap.Offcanvas(document.getElementById("AsideOffcanvasCart"));
+    
+        [headerToggle, asideToggle].forEach(button => {
+            if (button) {
+                button.addEventListener("click", () => {
+                    cartOffcanvas.show();
+                    loadCartItems(); // 💥 This is the magic
+                });
+            }
+        });
     });
-});
-</script>
-
+    </script>
+    
 

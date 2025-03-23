@@ -80,9 +80,9 @@
                                             {% for item in cart_items %}
                                             <tr class="cart-product-item" data-product-id="{{ item.product.id }}">
                                                 <td class="product-remove">
-                                                    <a href="{% url 'remove_from_cart' item.product.id %}" >
+                                                    <a href="#" class="remove-item" data-cart-item-id="{{ item.id }}">
                                                         <i class="fa fa-trash-o"></i>
-                                                    </a>
+                                                    </a>                                                    
                                                 </td>
                                                 <td class="product-thumb">
                                                     <a href="{% url 'product_detail' item.product.id %}">
@@ -367,7 +367,7 @@
 
 
 
-<script src="{% static 'assets/js/cart.js' %}"></script>
+
     
 
 <!--=== jQuery Modernizr Min Js ===-->
@@ -392,6 +392,8 @@
 <script src="{% static 'assets/js/parallax.min.js' %}"></script>
 <!--=== jQuery Aos Min Js ===-->
 <script src="{% static 'assets/js/aos.min.js' %}"></script>
+
+<script src="{% static 'assets/js/cart.js' %}"></script>
 
 <!--=== jQuery Custom Js ===-->
 {% block extra_scripts %}{% endblock %} 

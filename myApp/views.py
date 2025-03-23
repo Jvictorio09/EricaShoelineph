@@ -113,74 +113,84 @@ def add_to_cart(request, product_id):
     if request.user.is_authenticated:
         cart, _ = Cart.objects.get_or_create(user=request.user)
         cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product, user=request.user)
+        session_info = f"(Authenticated user: {request.user.username})"
     else:
         session_id = request.session.get("session_id")
         if not session_id:
             session_id = str(uuid.uuid4())
             request.session["session_id"] = session_id
+        request.session.modified = True  # Make sure session saves!
 
         cart, _ = Cart.objects.get_or_create(session_id=session_id)
         cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product, user=None)
+        session_info = f"(Guest session ID: {session_id})"
 
     if not created:
         cart_item.quantity += quantity
     cart_item.save()
 
+    # 🧾 Get updated list of items in the cart
+    cart_items = CartItem.objects.filter(cart=cart)
+
+    # 📦 Console logs for dev
+    print("\n🛒 CART UPDATED " + session_info)
+    for item in cart_items:
+        print(f"  - {item.product.name} (x{item.quantity})")
+
+    # ✅ Return updated cart count and message with product name
     return JsonResponse({
         "success": True,
-        "message": "Item added to cart!",
-        "cart_count": CartItem.objects.filter(cart=cart).count()
+        "message": f"✅ '{product.name}' added to cart!",
+        "cart_count": cart_items.count()
     })
 
 
-from decimal import Decimal
 
-def get_cart_data(request):
-    items = []
-    subtotal = Decimal("0.00")
+
+from decimal import Decimal
+from django.http import JsonResponse
+from .models import CartItem, Product
+
+def cart_data(request):
+    cart_items = []
+    cart_subtotal = Decimal("0.00")
 
     if request.user.is_authenticated:
-        cart_items = CartItem.objects.select_related("product").filter(user=request.user)
-
-        for item in cart_items:
-            product = item.product
-            price = Decimal(product.get_price())
-            quantity = item.quantity
-            subtotal += price * quantity
-
-            items.append({
+        items = CartItem.objects.filter(user=request.user)
+        for item in items:
+            cart_items.append({
                 "id": item.id,
-                "product_id": product.id,
-                "name": product.name,
-                "image_url": product.image.url if product.image else "",
-                "quantity": quantity,
-                "price": float(price),
+                "product_id": item.product.id,
+                "name": item.product.name,
+                "image": item.product.image.url,
+                "quantity": item.quantity,
+                "price": float(item.product.get_price()),
+                "total": float(item.total_price),
             })
-
+            cart_subtotal += item.total_price
     else:
         cart = request.session.get("cart", {})
         for product_id, item in cart.items():
             try:
                 product = Product.objects.get(id=product_id)
-                price = Decimal(product.get_price())
-                quantity = item["quantity"]
-                subtotal += price * quantity
-
-                items.append({
-                    "id": product.id,
+                total_price = Decimal(product.get_price()) * Decimal(item["quantity"])
+                cart_items.append({
                     "product_id": product.id,
                     "name": product.name,
-                    "image_url": product.image.url if product.image else "",
-                    "quantity": quantity,
-                    "price": float(price),
+                    "image": product.image.url,
+                    "quantity": item["quantity"],
+                    "price": float(product.get_price()),
+                    "total": float(total_price),
                 })
+                cart_subtotal += total_price
             except Product.DoesNotExist:
                 continue
 
     return JsonResponse({
-        "items": items,
-        "cart_subtotal": float(subtotal),
+        "cart_items": cart_items,
+        "cart_subtotal": float(cart_subtotal)
     })
+
 
 
 

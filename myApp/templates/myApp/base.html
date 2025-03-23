@@ -6,14 +6,15 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Erica - Shoes eCommerce Website Template"/>
-    <meta name="keywords" content="footwear, shoes, modern, shop, store, ecommerce, responsive, e-commerce"/>
-    <meta name="author" content="codecarnival"/>
+    <meta name="description" content="ERICA Shoeline PH – Elevating feminine confidence through timeless, elegant, and comfortable footwear for every Filipina." />
+    <meta name="keywords" content="Erica Shoeline, women’s shoes, elegant footwear, Filipina fashion, comfort shoes, modern femininity, timeless design, eCommerce shoes, shoe store Philippines" />
+    <meta name="author" content="ERICA Shoeline PH" />
+    
 
-    <title>{% block title %}Home{% endblock %} - Erica</title>
+    <title>{% block title %}Home{% endblock %} - ERICA SHOELINE PH</title>
 
     <!--== Favicon ==-->
-    <link rel="shortcut icon" href="{% static 'assets/img/favicon.ico' %}" type="image/x-icon" />
+    <link rel="shortcut icon" href="{% static 'assets/img/2.svg' %}" type="image/x-icon" />
 
     <!--== Google Fonts ==-->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -33,10 +34,24 @@
 
     {% block extra_head %}{% endblock %}
 </head>
+<style>
+    button[disabled] {
+    opacity: 0.6;
+    pointer-events: none;
+}
+.loading-cart {
+    padding: 10px;
+    text-align: center;
+    font-style: italic;
+    color: #888;
+}
 
+
+</style>
 
 <body>
-    <div id="toast"></div>
+    <div id="toast-container" style="display: none;"></div>
+
 
 
     <!-- Header -->
@@ -47,14 +62,18 @@
     <main>
         {% block content %}{% endblock %}
     </main>
-    {% include "myApp/aside_cart.html" %}
+
+
+    
 
     <!-- Footer -->
     
     {% include 'myApp/footer.html' %}
+    
+    
 
     <!-- Scripts -->
-    <script src="{% static 'assets/js/cart.js' %}"></script>
+
 
     <script src="{% static 'assets/js/modernizr.js' %}"></script>
     <script src="{% static 'assets/js/jquery-main.js' %}"></script>
@@ -68,6 +87,7 @@
     <script src="{% static 'assets/js/parallax.min.js' %}"></script>
     <script src="{% static 'assets/js/aos.min.js' %}"></script>
     <script src="{% static 'assets/js/custom.js' %}"></script>
+    <script src="{% static 'assets/js/cart.js' %}"></script>
 
     {% block extra_scripts %}{% endblock %}
 

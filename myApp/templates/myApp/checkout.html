@@ -278,7 +278,7 @@
                                                 <td class="product-name">
                                                     {{ item.product.name }} <span class="product-quantity">× {{ item.quantity }}</span>
                                                 </td>
-                                                <td class="product-total">${{ item.total_price }}</td>
+                                                <td class="product-total">₱{{ item.total_price }}</td>
                                             </tr>
                                         {% empty %}
                                             <tr>
@@ -289,15 +289,15 @@
                                     <tfoot class="table-foot">
                                         <tr class="cart-subtotal">
                                             <th>Subtotal</th>
-                                            <td>${{ cart_subtotal }}</td>
+                                            <td>₱{{ cart_subtotal }}</td>
                                         </tr>
                                         <tr class="shipping">
                                             <th>Shipping</th>
-                                            <td>Flat rate: ${{ shipping_cost }}</td>
+                                            <td>Flat rate: ₱{{ shipping_cost }}</td>
                                         </tr>
                                         <tr class="order-total">
                                             <th>Total</th>
-                                            <td>${{ order_total }}</td>
+                                            <td>₱{{ order_total }}</td>
                                         </tr>
                                     </tfoot>
                                 </table>
