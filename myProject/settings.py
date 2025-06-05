@@ -5,7 +5,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env(DEBUG=(bool, False))
-env_file = "/Users/Julia/Downloads/EricaShoelineph/.env"
+env_file = "/Users/ADMIN/Downloads/EricaShoelineph/.env"
 
 if os.path.exists(env_file):
     env.read_env(env_file)
