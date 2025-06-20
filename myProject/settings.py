@@ -5,7 +5,10 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env(DEBUG=(bool, False))
-env_file = "/Users/ADMIN/Downloads/EricaShoelineph/.env"
+env_file = "C:\\Users\\ADMIN\\Downloads\\EricaShoelineph\\.env"
+
+
+
 
 if os.path.exists(env_file):
     env.read_env(env_file)
@@ -52,6 +55,8 @@ INSTALLED_APPS = [
     "myApp",
     "cloudinary",
     "cloudinary_storage",
+    "django_countries",
+    "django.contrib.humanize",
 ]
 
 MIDDLEWARE = [
@@ -150,8 +155,11 @@ EMAIL_HOST = env("EMAIL_HOST", default="smtp.gmail.com")
 EMAIL_PORT = env.int("EMAIL_PORT", default=587)
 EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
 EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
-EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+ADMIN_EMAIL = env("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = "mblp jrfr vfyi zvlv"
+#EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default=EMAIL_HOST_USER)
+
 
 
 import os

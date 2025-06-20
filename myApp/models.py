@@ -260,3 +260,49 @@ class AboutSection(models.Model):
 
     def __str__(self):
         return f"{self.title} - Section {self.order}"
+
+
+# models.py
+import uuid
+from django.db import models
+from django.contrib.auth.models import User
+
+class Order(models.Model):
+    STATUS_CHOICES = [
+        ('received', 'Received'),
+        ('preparing', 'Preparing'),
+        ('to_ship', 'To Ship'),
+        ('shipped', 'Shipped'),
+    ]
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    session_id = models.CharField(max_length=255, blank=True, null=True)
+    tracking_number = models.CharField(max_length=100, unique=True)
+    email = models.EmailField()
+    full_name = models.CharField(max_length=255)
+    address = models.TextField()
+    city = models.CharField(max_length=255)
+    province = models.CharField(max_length=255, null=True, blank=True)  # ✅ NEW
+    region = models.CharField(max_length=50,null=True, blank=True)     # ✅ NEW
+    shipping_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # ✅ NEW
+
+     
+    postal_code = models.CharField(max_length=20, blank=True, null=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    order_notes = models.TextField(blank=True, null=True)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    date_ordered = models.DateTimeField(auto_now_add=True)
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='received'
+    )
+
+    def __str__(self):
+        return f"Order #{self.tracking_number} - {self.get_status_display()}"
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; color: #333; background-color: #f9f9f9; }
+    .email-container {
+      max-width: 600px;
+      margin: auto;
+      padding: 30px;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .status-box {
+      background-color: #f0f4f8;
+      padding: 15px;
+      border-left: 5px solid #007bff;
+      border-radius: 5px;
+      margin: 20px 0;
+      font-size: 18px;
+      font-weight: bold;
+      color: #007bff;
+    }
+    .footer {
+      margin-top: 40px;
+      font-size: 12px;
+      color: #888;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <h2>Order Status Update</h2>
+
+    <p>Dear {{ full_name }},</p>
+
+    <p>We wanted to let you know that the status of your order <strong>#{{ tracking_number }}</strong> has been updated.</p>
+
+    <div class="status-box">
+      Current Status: {{ status }}
+    </div>
+
+    <p>We're working hard to get your order to you as quickly and smoothly as possible. You’ll receive another update as soon as we reach the next stage.</p>
+
+    <p>If you have any questions or concerns, feel free to reply to this email or contact our support team anytime.</p>
+
+    <p>Thank you for choosing us. We appreciate your trust.</p>
+
+    <div class="footer">
+      This is an automated message. For support, visit our Help Center or contact our customer service.
+    </div>
+  </div>
+</body>
+</html>

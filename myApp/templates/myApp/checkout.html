@@ -129,8 +129,9 @@
                         <!--== Start Billing Accordion ==-->
                         <div class="checkout-billing-details-wrap">
                             <h2 class="title">Billing details</h2>
-                            <div class="billing-form-wrap">
                                 <form method="POST" action="{% url 'checkout' %}">
+                            <div class="billing-form-wrap">
+                                
                                     {% csrf_token %}
                                     <div class="row">
                                         <div class="col-md-6">
@@ -181,14 +182,32 @@
                                         </div>
                                         <div class="col-md-12">
                                             <div class="form-group">
-                                                <label for="district">District <abbr class="required" title="required">*</abbr></label>
-                                                <select id="district" name="district" class="form-control">
-                                                    {% for district in districts %}
-                                                        <option value="{{ district.id }}">{{ district.name }}</option>
-                                                    {% endfor %}
+                                                <label for="province">Province <abbr class="required" title="required">*</abbr></label>
+                                                <select id="province" name="province" class="form-control" required>
+                                                    <option value="">-- Select Province --</option>
+                                        
+                                                    <optgroup label="Luzon">
+                                                        {% for province in LUZON_PROVINCES %}
+                                                            <option value="{{ province }}">{{ province }}</option>
+                                                        {% endfor %}
+                                                    </optgroup>
+                                        
+                                                    <optgroup label="Visayas">
+                                                        {% for province in VISAYAS_PROVINCES %}
+                                                            <option value="{{ province }}">{{ province }}</option>
+                                                        {% endfor %}
+                                                    </optgroup>
+                                        
+                                                    <optgroup label="Mindanao">
+                                                        {% for province in MINDANAO_PROVINCES %}
+                                                            <option value="{{ province }}">{{ province }}</option>
+                                                        {% endfor %}
+                                                    </optgroup>
                                                 </select>
                                             </div>
                                         </div>
+                                        
+                                        
                                         <div class="col-md-12">
                                             <div class="form-group">
                                                 <label for="pz-code">Postcode / ZIP (optional)</label>
@@ -255,7 +274,7 @@
                                         </div>
                                         
                                     </div>
-                                </form>
+                                
                             </div>
                         </div>
                         <!--== End Billing Accordion ==-->
@@ -366,6 +385,7 @@
                                 </div>
                             </div>
                         </div>
+                    </form>
                         <!--== End Order Details Accordion ==-->
                     </div>
                 </div>
@@ -375,5 +395,39 @@
 
 
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const provinceSelect = document.getElementById("province");
+        const shippingField = document.querySelector("td.shipping");
+        const shippingAmount = document.querySelector("td.shipping");
+        const totalField = document.querySelector("td.order-total");
+        const subtotal = parseFloat("{{ cart_subtotal }}");
+    
+        function formatPHP(amount) {
+            return "₱" + parseFloat(amount).toLocaleString('en-PH', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+    
+        provinceSelect.addEventListener("change", function () {
+            const province = this.value;
+            if (!province) return;
+    
+            fetch(`/ajax/get-shipping-fee/?province=${province}`)
+                .then(response => response.json())
+                .then(data => {
+                    const shipping = data.shipping_cost;
+                    const newTotal = subtotal + parseFloat(shipping);
+    
+                    // Update shipping and total on UI
+                    shippingAmount.innerHTML = `Flat rate: ${formatPHP(shipping)}`;
+                    totalField.innerHTML = formatPHP(newTotal);
+                });
+        });
+    });
+    </script>
+    
 
 {% endblock %}

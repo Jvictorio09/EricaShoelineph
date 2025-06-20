@@ -28,6 +28,8 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(data => {
                 if (data.success) {
                     updateCartCount();
+                    loadCartItems();           // ✅ refresh aside cart contents
+                    cartOffcanvas.show();      // ✅ open the aside cart (optional UX)
                     showToast("🛒 Added to cart!");
                 } else {
                     alert(data.error || "Failed to add to cart.");

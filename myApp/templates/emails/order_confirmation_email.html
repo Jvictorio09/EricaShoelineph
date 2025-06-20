@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; color: #333; }
+    .email-container { max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 8px; }
+    h2 { color: #007BFF; }
+    .order-summary { background-color: #f9f9f9; padding: 15px; border-radius: 6px; margin-top: 20px; }
+    .item { margin-bottom: 10px; }
+    .footer { font-size: 12px; color: #888; margin-top: 30px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <h2>Order Confirmation</h2>
+    <p>Hi {{ full_name }},</p>
+    <p>Thank you for shopping with us! Your order has been received and is now being processed.</p>
+
+    <div class="order-summary">
+      <p><strong>Tracking Number:</strong> {{ tracking_number }}</p>
+      <p><strong>Total Amount:</strong> ₱{{ total_amount|floatformat:2 }}</p>
+      <hr/>
+      <p><strong>Items:</strong></p>
+      {% for item in items %}
+        <div class="item">🛒 {{ item.product.name }} × {{ item.quantity }} — ₱{{ item.total_price|floatformat:2 }}</div>
+      {% empty %}
+        <p>No items found.</p>
+      {% endfor %}
+    </div>
+
+    <p>If you have any questions, feel free to reply to this email.</p>
+    <p class="footer">This is an automated confirmation from our store. Please do not reply directly.</p>
+  </div>
+</body>
+</html>

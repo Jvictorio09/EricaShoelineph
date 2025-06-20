@@ -26,3 +26,16 @@ class ColorForm(forms.ModelForm):
         widgets = {
             "hex_code": forms.TextInput(attrs={"type": "color"}),
         }
+
+
+
+from django import forms
+from .models import Order
+
+class OrderStatusForm(forms.ModelForm):
+    class Meta:
+        model = Order
+        fields = ['status']
+        widgets = {
+            'status': forms.Select(attrs={'class': 'form-select'}),
+        }

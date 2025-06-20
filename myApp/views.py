@@ -6,6 +6,9 @@ from django.core.mail import send_mail
 from django.contrib.auth import login, authenticate
 from .models import Product, Category, SpecialOffer, Feature, ProductCollection, Testimonial, Cart, CartItem, Coupon, TeamMember, Blog
 from myApp.context_processors import cart_context
+from django.views.decorators.csrf import csrf_exempt
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
 
 def home(request):
     main_category = Category.objects.filter(is_main_header=True).first()
@@ -157,7 +160,13 @@ def cart_data(request):
 
     if request.user.is_authenticated:
         items = CartItem.objects.filter(user=request.user)
-        for item in items:
+    else:
+        session_id = request.session.get("session_id")
+        cart = Cart.objects.filter(session_id=session_id).first()
+        items = CartItem.objects.filter(cart=cart, user=None) if cart else []
+
+    for item in items:
+        try:
             cart_items.append({
                 "id": item.id,
                 "product_id": item.product.id,
@@ -168,23 +177,8 @@ def cart_data(request):
                 "total": float(item.total_price),
             })
             cart_subtotal += item.total_price
-    else:
-        cart = request.session.get("cart", {})
-        for product_id, item in cart.items():
-            try:
-                product = Product.objects.get(id=product_id)
-                total_price = Decimal(product.get_price()) * Decimal(item["quantity"])
-                cart_items.append({
-                    "product_id": product.id,
-                    "name": product.name,
-                    "image": product.image.url,
-                    "quantity": item["quantity"],
-                    "price": float(product.get_price()),
-                    "total": float(total_price),
-                })
-                cart_subtotal += total_price
-            except Product.DoesNotExist:
-                continue
+        except Exception as e:
+            print("Error loading item:", e)
 
     return JsonResponse({
         "cart_items": cart_items,
@@ -235,82 +229,283 @@ def clear_cart(request):
 
 
 
-from django.shortcuts import render, get_object_or_404
-from .models import Product, CartItem
+
+
 from django.shortcuts import render
-from .models import CartItem, Product
-from decimal import Decimal  # ✅ Import Decimal
+from decimal import Decimal
+from .models import Product, CartItem, Cart
+
+# Define province-to-region logic directly here
+LUZON_PROVINCES = [
+    "Abra", "Apayao", "Aurora", "Bataan", "Batanes", "Batangas", "Benguet", "Bulacan",
+    "Cagayan", "Camarines Norte", "Camarines Sur", "Catanduanes", "Cavite", "Ifugao",
+    "Ilocos Norte", "Ilocos Sur", "La Union", "Laguna", "Marinduque", "Masbate", "Metro Manila",
+    "Occidental Mindoro", "Oriental Mindoro", "Mountain Province", "Nueva Ecija", "Nueva Vizcaya",
+    "Palawan", "Pampanga", "Pangasinan", "Quezon", "Quirino", "Rizal", "Romblon", "Sorsogon",
+    "Tarlac", "Zambales"
+]
+
+VISAYAS_PROVINCES = [
+    "Aklan", "Antique", "Biliran", "Bohol", "Capiz", "Cebu", "Eastern Samar", "Guimaras",
+    "Iloilo", "Leyte", "Negros Occidental", "Negros Oriental", "Northern Samar", "Samar",
+    "Siquijor", "Southern Leyte", "Western Samar"
+]
+
+MINDANAO_PROVINCES = [
+    "Agusan del Norte", "Agusan del Sur", "Basilan", "Bukidnon", "Camiguin", "Compostela Valley",
+    "Cotabato", "Davao de Oro", "Davao del Norte", "Davao del Sur", "Davao Occidental",
+    "Davao Oriental", "Dinagat Islands", "Lanao del Norte", "Lanao del Sur", "Maguindanao",
+    "Maguindanao del Norte", "Maguindanao del Sur", "Misamis Occidental", "Misamis Oriental",
+    "Sarangani", "South Cotabato", "Sultan Kudarat", "Sulu", "Surigao del Norte",
+    "Surigao del Sur", "Tawi-Tawi", "Zamboanga del Norte", "Zamboanga del Sur", "Zamboanga Sibugay"
+]
+
+def get_region_and_fee(province):
+    if province in LUZON_PROVINCES:
+        return "Luzon", Decimal("99.00")
+    elif province in VISAYAS_PROVINCES:
+        return "Visayas", Decimal("89.00")
+    elif province in MINDANAO_PROVINCES:
+        return "Mindanao", Decimal("69.00")
+    return "Unknown", Decimal("0.00")
+
 
 def cart_view(request):
     cart_items = []
-    cart_subtotal = Decimal("0.00")  # ✅ Ensure cart_subtotal is Decimal
+    cart_subtotal = Decimal("0.00")
+    shipping_cost = Decimal("0.00")
+    region = "Unknown"
 
     if request.user.is_authenticated:
-        # ✅ Logged-in user: Fetch cart from DB
         cart_items = CartItem.objects.filter(user=request.user)
         cart_subtotal = sum(item.total_price for item in cart_items)
 
+        # Assume the user's province is stored in their profile or session
+        province = getattr(request.user, "province", None) or request.session.get("province")
+        if province:
+            region, shipping_cost = get_region_and_fee(province)
 
     else:
-        # ✅ Guest user: Use session-based cart
-        cart = request.session.get("cart", {})
-        for product_id, item in cart.items():
-            product = Product.objects.get(id=product_id)
-            total_price = Decimal(product.get_price()) * Decimal(item["quantity"])  # ✅ Convert price to Decimal
+        session_id = request.session.get("session_id")
+        cart = Cart.objects.filter(session_id=session_id).first()
+        items = CartItem.objects.filter(cart=cart, user=None) if cart else []
+
+        for item in items:
+            product = item.product
             cart_items.append({
                 "product": product,
-                "quantity": item["quantity"],
-                "total_price": total_price
+                "quantity": item.quantity,
+                "total_price": item.total_price
             })
-            cart_subtotal += total_price
+            cart_subtotal += item.total_price
 
-    shipping_cost = Decimal("2.00")  # ✅ Convert to Decimal
-    order_total = cart_subtotal + shipping_cost  # ✅ Fix the TypeError
+        province = request.session.get("province")
+        if province:
+            region, shipping_cost = get_region_and_fee(province)
+
+    order_total = cart_subtotal + shipping_cost
 
     context = {
         "cart_items": cart_items,
         "cart_subtotal": cart_subtotal,
         "shipping_cost": shipping_cost,
+        "region": region,
         "order_total": order_total,
     }
 
     return render(request, "myApp/cart.html", context)
 
+import random
+import datetime
+from decimal import Decimal
+from django.shortcuts import render, redirect
+from django.core.mail import send_mail
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
+from django_countries import countries
+
+from .models import Order, OrderItem, CartItem, Cart
 
 
 
+def generate_tracking_number():
+    return f"ERICA-{datetime.datetime.now().strftime('%Y%m%d')}-{random.randint(100, 999)}"
+
+
+@csrf_exempt
 def checkout(request):
+    if request.method == "POST":
+        # Get form fields
+        first_name = request.POST.get("first_name")
+        last_name = request.POST.get("last_name")
+        full_name = f"{first_name} {last_name}"
+        email = request.POST.get("email")
+        phone = request.POST.get("phone")
+        address = request.POST.get("street_address")
+        city = request.POST.get("city")
+        province = request.POST.get("province")  # ✅ New
+        postal_code = request.POST.get("postal_code")
+        notes = request.POST.get("order_notes")
+        country = request.POST.get("country")
+        tracking_number = generate_tracking_number()
+
+        # Determine region + shipping fee
+        region, shipping_cost = get_region_and_fee(province)
+
+        # Calculate cart total
+        cart_items = []
+        cart_subtotal = Decimal("0.00")
+
+        if request.user.is_authenticated:
+            cart_items = CartItem.objects.filter(user=request.user)
+        else:
+            session_id = request.session.get("session_id")
+            cart = Cart.objects.filter(session_id=session_id).first()
+            cart_items = CartItem.objects.filter(cart=cart, user=None) if cart else []
+
+        for item in cart_items:
+            cart_subtotal += item.total_price
+
+        total_amount = cart_subtotal + shipping_cost  # ✅ Include shipping fee
+
+        # Save order
+        order = Order.objects.create(
+            user=request.user if request.user.is_authenticated else None,
+            session_id=request.session.get("session_id") if not request.user.is_authenticated else None,
+            tracking_number=tracking_number,
+            email=email,
+            full_name=full_name,
+            address=address,
+            city=city,
+            province=province,
+            region=region,  # ✅ Save region
+            shipping_cost=shipping_cost,  # ✅ Save shipping
+            postal_code=postal_code,
+            phone=phone,
+            order_notes=notes,
+            total_amount=total_amount
+        )
+
+        for item in cart_items:
+            OrderItem.objects.create(
+                order=order,
+                product=item.product,
+                quantity=item.quantity,
+                total_price=item.total_price
+            )
+
+        cart_items.delete()
+
+        # Email customer
+        html_content = render_to_string("emails/order_confirmation_email.html", {
+            "full_name": full_name,
+            "tracking_number": tracking_number,
+            "total_amount": total_amount,
+            "items": order.items.all(),
+        })
+
+        text_content = f"Thank you for your order, {full_name}!\n\nTracking Number: {tracking_number}\nTotal: ₱{total_amount}"
+
+        email_msg = EmailMultiAlternatives(
+            subject=f"Order Confirmation - {tracking_number}",
+            body=text_content,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[email],
+        )
+        email_msg.attach_alternative(html_content, "text/html")
+        email_msg.send()
+
+        # Email admin
+        items_str = "\n".join([
+            f"🛍 {item.product.name} — Qty: {item.quantity} — Subtotal: ₱{item.total_price:,.2f}"
+            for item in order.items.all()
+        ]) or "❌ No items found."
+
+        admin_email_body = f"""
+        🛒 NEW ORDER RECEIVED
+
+        📦 Tracking Number: {tracking_number}
+
+        👤 Customer: {full_name}
+        📧 Email: {email}
+        📱 Phone: {phone}
+        📍 Country: {country}
+        🏠 Address: {address}, {city}, {province}, {postal_code}
+        🌍 Region: {region}
+        🚚 Shipping Fee: ₱{shipping_cost:,.2f}
+        🧾 Total Amount: ₱{total_amount:,.2f}
+
+        🧺 Items Ordered:
+        {items_str}
+        """
+
+        send_mail(
+            subject=f"[NEW ORDER] {tracking_number}",
+            message=admin_email_body,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[settings.ADMIN_EMAIL],
+            fail_silently=False,
+        )
+
+        return redirect("order_success")
+
+    # If GET
     cart_items = []
-    cart_subtotal = Decimal("0.00")  # ✅ Ensure cart_subtotal is Decimal
+    cart_subtotal = Decimal("0.00")
 
     if request.user.is_authenticated:
-        # ✅ Logged-in user: Fetch cart from DB
-        cart_items = CartItem.objects.filter(user=request.user)
-        cart_subtotal = sum(item.total_price for item in cart_items)
+        cart_items_qs = CartItem.objects.filter(user=request.user)
     else:
-        # ✅ Guest user: Use session-based cart
-        cart = request.session.get("cart", {})
-        for product_id, item in cart.items():
-            product = Product.objects.get(id=product_id)
-            total_price = Decimal(product.get_price()) * Decimal(item["quantity"])  # ✅ Convert price to Decimal
-            cart_items.append({
-                "product": product,
-                "quantity": item["quantity"],
-                "total_price": total_price
-            })
-            cart_subtotal += total_price
+        session_id = request.session.get("session_id")
+        cart = Cart.objects.filter(session_id=session_id).first()
+        cart_items_qs = CartItem.objects.filter(cart=cart, user=None) if cart else []
 
-    shipping_cost = Decimal("2.00")  # ✅ Convert to Decimal
-    order_total = cart_subtotal + shipping_cost  # ✅ Fix the TypeError
+    for item in cart_items_qs:
+        cart_items.append({
+            "product": item.product,
+            "quantity": item.quantity,
+            "total_price": item.total_price
+        })
+        cart_subtotal += item.total_price
+
+    # Default province logic (optional)
+    province = getattr(request.user, "province", None) or request.session.get("province")
+    _, shipping_cost = get_region_and_fee(province or "")
+
+    order_total = cart_subtotal + shipping_cost
 
     context = {
-        "cart_items": cart_items,
-        "cart_subtotal": cart_subtotal,
-        "shipping_cost": shipping_cost,
-        "order_total": order_total,
-    }
+    "cart_items": cart_items,
+    "cart_subtotal": cart_subtotal,
+    "shipping_cost": shipping_cost,
+    "order_total": order_total,
+    "countries": list(countries),
+    "selected_country": "PH",
+    "LUZON_PROVINCES": LUZON_PROVINCES,
+    "VISAYAS_PROVINCES": VISAYAS_PROVINCES,
+    "MINDANAO_PROVINCES": MINDANAO_PROVINCES,
+}
+
 
     return render(request, "myApp/checkout.html", context)
+
+
+from django.http import JsonResponse
+
+def get_shipping_fee(request):
+    province = request.GET.get("province", "")
+    region, fee = get_region_and_fee(province)
+    return JsonResponse({
+        "region": region,
+        "shipping_cost": float(fee),
+    })
+
+
+from django.shortcuts import render
+
+def order_success(request):
+    return render(request, 'myApp/order_success.html')
+
 
 
 from django.contrib.auth import login, authenticate
@@ -520,7 +715,7 @@ def calculate_shipping(request):
         elif country == "UK":
             shipping_cost = 8.00
         elif country == "CA":
-            shipping_cost = 12.00
+            shipping_cost = 150.00
 
         return JsonResponse({"cost": shipping_cost})
     return JsonResponse({"error": "Invalid request"}, status=400)
@@ -684,4 +879,122 @@ def add_comment(request, slug):
 
     return redirect("blog_details", slug=blog.slug)
 
+def send_status_update_email(order):
+    subject = f"Order Update - #{order.tracking_number}"
+    context = {
+        'full_name': order.full_name,
+        'tracking_number': order.tracking_number,
+        'status': order.get_status_display(),
+    }
 
+    # Plain text fallback
+    text_body = f"""Dear {order.full_name},
+
+We wanted to inform you that the status of your order #{order.tracking_number} has been updated.
+
+Current Status: {order.get_status_display()}
+
+We’re actively processing your order and you’ll receive another update once we reach the next step.
+
+Thank you for shopping with us. If you have any questions, don’t hesitate to contact our support team.
+
+Best regards,
+[Your Store Name]
+"""
+
+    # HTML version
+    html_body = render_to_string("emails/order_status_update.html", context)
+
+    email = EmailMultiAlternatives(
+        subject,
+        text_body,
+        from_email="juliavictorio16@gmail.com",  # Or settings.DEFAULT_FROM_EMAIL
+        to=[order.email],
+    )
+    email.attach_alternative(html_body, "text/html")
+    email.send()
+
+
+from django.contrib.admin.views.decorators import staff_member_required
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Order
+from .forms import OrderStatusForm
+
+from django.core.paginator import Paginator
+from django.contrib.admin.views.decorators import staff_member_required
+from django.shortcuts import render
+from .models import Order
+
+@staff_member_required
+def admin_order_list(request):
+    sort_by = request.GET.get('sort', '-date_ordered')  # Default to newest
+    orders_qs = Order.objects.all().order_by(sort_by)
+
+    paginator = Paginator(orders_qs, 10)  # Show 10 orders per page
+    page_number = request.GET.get('page')
+    orders_page = paginator.get_page(page_number)
+
+    context = {
+        'orders': orders_page,
+        'current_sort': sort_by,
+    }
+    return render(request, 'admin/order_list.html', context)
+
+
+@staff_member_required
+def update_order_status(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    old_status = order.status  # track previous status
+
+    if request.method == 'POST':
+        form = OrderStatusForm(request.POST, instance=order)
+        if form.is_valid():
+            updated_order = form.save(commit=False)
+            if updated_order.status != old_status:
+                updated_order.save()
+                send_status_update_email(updated_order)  # 👈 Send email if status changed
+            else:
+                updated_order.save()
+            return redirect('admin_order_list')
+    else:
+        form = OrderStatusForm(instance=order)
+
+    return render(request, 'admin/update_order_status.html', {'form': form, 'order': order})
+
+
+from django.contrib import messages
+
+@staff_member_required
+def delete_order(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    if request.method == 'POST':
+        order.delete()
+        messages.success(request, f"Order #{order.tracking_number} has been deleted.")
+    return redirect('admin_order_list')
+
+
+
+import csv
+from django.http import HttpResponse
+from django.contrib.admin.views.decorators import staff_member_required
+from .models import Order
+
+@staff_member_required
+def export_orders_to_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="orders_export.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Tracking Number', 'Customer', 'Email', 'Date Ordered', 'Total Amount', 'Status'])
+
+    for order in Order.objects.all().order_by('-date_ordered'):
+        writer.writerow([
+            order.tracking_number,
+            order.full_name,
+            order.email,
+            order.date_ordered.strftime('%Y-%m-%d %H:%M'),
+            f"{order.total_amount:.2f}",
+            order.get_status_display()
+        ])
+
+    return response

@@ -45,4 +45,14 @@ urlpatterns = [
     path( 'blog/tag/<str:tag_name>/', views.blog_by_tag, name= 'blog_by_tag'),
 
     path( 'blog/<slug:slug>/comment/', views.add_comment, name= 'add_comment'),
+    path('order-success/', views.order_success, name='order_success'),
+    path('ajax/get-shipping-fee/', views.get_shipping_fee, name='get_shipping_fee'),
+
+
+    path('orders/', views.admin_order_list, name='admin_order_list'),
+    path('orders/<int:order_id>/update-status/', views.update_order_status, name='update_order_status'),
+
+    path('orders/<int:order_id>/delete/', views.delete_order, name='delete_order'),
+    path('orders/export/csv/', views.export_orders_to_csv, name='export_orders_to_csv'),
+
 ]
