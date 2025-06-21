@@ -269,8 +269,9 @@ function updateCartDisplay() {
 function getShippingCost() {
     const selected = document.querySelector('input[name="shipping"]:checked');
     if (!selected) return 0.00;
-    if (selected.value === "flat_rate") return 5.00;
-    if (selected.value === "local_pickup") return 2.00;
+    if (selected.value === "luzon") return 99.00;
+    if (selected.value === "visayas") return 89.00;
+    if (selected.value === "mindanao") return 69.00;
     return 0.00;
 }
 

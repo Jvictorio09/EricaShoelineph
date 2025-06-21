@@ -589,6 +589,14 @@ def login_view(request):
     return render(request, "myApp/login.html")
 
 
+from django.contrib.auth import logout
+from django.shortcuts import redirect
+
+def logout_view(request):
+    logout(request)
+    return redirect("login")  # Send them back to login page
+
+
 from django.shortcuts import render
 from .models import TeamMember, Testimonial, Blog, AboutSection
 

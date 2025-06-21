@@ -30,9 +30,15 @@
                                                 <i class="fa fa-instagram"></i>
                                             </a>
                                         </li>
-                                        <li class="account"><i class="fa fa-user"></i> 
-                                            <a href="{% url 'login' %}">Account</a>
+                                        <li class="account">
+                                            <i class="fa fa-user"></i>
+                                            {% if user.is_authenticated %}
+                                                <a href="{% url 'logout' %}">Logout</a>
+                                            {% else %}
+                                                <a href="{% url 'login' %}">Account</a>
+                                            {% endif %}
                                         </li>
+  
                                     </ul>
                                 </div>
                             </div>
@@ -84,6 +90,8 @@
                                         </sup>
                                     </button>
                                 </div>
+
+                                
                                 
                                 <button class="btn-menu" type="button" data-bs-toggle="offcanvas" data-bs-target="#AsideOffcanvasMenu" aria-controls="AsideOffcanvasMenu">
                                     <i class="pe-7s-menu"></i>
@@ -110,6 +118,10 @@
                                 <li><a href="{% url 'shop' %}"><span>Shop</span></a></li>
                                 <li><a href="{% url 'blog_list' %}"><span>Blog</span></a></li>
                                 <li><a href="{% url 'contact' %}"><span>Contact</span></a></li>
+                                {% if user.is_authenticated and user.is_staff %}
+                                <li><a href="{% url 'admin_order_list' %}"><span>Admin Orders</span></a></li>
+                                <li><a href="/admin/" target="_blank"><span>Django Admin</span></a></li>
+                                {% endif %}
 
                                 
                             </ul>

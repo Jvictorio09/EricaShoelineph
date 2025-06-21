@@ -27,9 +27,9 @@ urlpatterns = [
     path( 'checkout/', views.checkout, name= 'checkout'),
     path('cart/update/<int:product_id>/', views.update_cart_quantity, name='update_cart_quantity'),
     
-    path( 'login/', views.login_view, name= 'login'),
-    path( 'logout/', LogoutView.as_view(next_page= 'login'), name= 'logout'),
-   
+    path("login/", views.login_view, name="login"),
+    path("logout/", views.logout_view, name="logout"),
+
     path( 'password-reset/', PasswordResetView.as_view(), name= 'password_reset'),
     
     path( 'apply-coupon/', views.apply_coupon, name= 'apply_coupon'),
