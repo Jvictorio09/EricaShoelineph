@@ -116,7 +116,9 @@
                                 <li><a href="{% url 'home' %}"><span>Home</span></a></li>
                                 <li><a href="{% url 'about' %}"><span>About</span></a></li>
                                 <li><a href="{% url 'shop' %}"><span>Shop</span></a></li>
+                                <!--          
                                 <li><a href="{% url 'blog_list' %}"><span>Blog</span></a></li>
+                                -->
                                 <li><a href="{% url 'contact' %}"><span>Contact</span></a></li>
                                 {% if user.is_authenticated and user.is_staff %}
                                 <li><a href="{% url 'admin_order_list' %}"><span>Admin Orders</span></a></li>

@@ -51,37 +51,72 @@ def shop_category(request, id):
         'products': products
     })
 
-
 from django.shortcuts import render
-from .models import Product, Category, Brand
+from .models import Product, Category, Brand, Size, Color
+from django.db.models import Q
 
 def shop(request):
     products = Product.objects.all()
     categories = Category.objects.all()
     brands = Brand.objects.all()
+    sizes = Size.objects.all()
+    colors = Color.objects.all()
+    price_ranges = Product.objects.exclude(price_range__isnull=True).values_list('price_range', flat=True).distinct()
 
-    # Sorting logic
+    # Search query
+    query = request.GET.get('q')
+    if query:
+        products = products.filter(
+            Q(name__icontains=query) |
+            Q(description__icontains=query)
+        )
+
+    # Filters
+    category_id = request.GET.get('category')
+    brand_id = request.GET.get('brand')
+    size_id = request.GET.get('size')
+    color_id = request.GET.get('color')
+    price_range = request.GET.get('price_range')
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+
+    if category_id:
+        products = products.filter(category__id=category_id)
+
+    if brand_id:
+        products = products.filter(category__brand__id=brand_id)  # Adjust based on actual relation
+        # or: products = products.filter(brand__id=brand_id) if directly on Product
+
+    if size_id:
+        products = products.filter(sizes__id=size_id)
+
+    if color_id:
+        products = products.filter(colors__id=color_id)
+
+    if price_range:
+        min_p, max_p = map(int, price_range.split('-'))
+        products = products.filter(price__gte=min_p, price__lte=max_p)
+
+    if min_price and max_price:
+        products = products.filter(price__gte=min_price, price__lte=max_price)
+
+    # Sorting
     sort_by = request.GET.get('sort')
     if sort_by == 'price_low':
         products = products.order_by('price')
     elif sort_by == 'price_high':
         products = products.order_by('-price')
 
-    # Price Filtering
-    min_price = request.GET.get('min_price')
-    max_price = request.GET.get('max_price')
-    if min_price and max_price:
-        products = products.filter(price__gte=min_price, price__lte=max_price)
-
-
-    
     context = {
-        'products': products,
+        'products': products.distinct(),
         'categories': categories,
-        'brands': brands
+        'brands': brands,
+        'sizes': sizes,
+        'colors': colors,
+        'price_ranges': price_ranges,
+        'query': query,  # So you can show the search keyword
     }
-    
-     
+
     return render(request, 'myApp/shop.html', context)
 
 
@@ -595,6 +630,18 @@ from django.shortcuts import redirect
 def logout_view(request):
     logout(request)
     return redirect("login")  # Send them back to login page
+
+
+from django.contrib.auth.views import PasswordResetView
+from django.urls import reverse_lazy
+from django.contrib.messages.views import SuccessMessageMixin
+
+class CustomPasswordResetView(SuccessMessageMixin, PasswordResetView):
+    template_name = 'myApp/password_reset.html'
+    email_template_name = 'myApp/password_reset_email.html'
+    subject_template_name = 'myApp/password_reset_subject.txt'
+    success_url = reverse_lazy('password_reset_done')
+    success_message = "If your email exists in our system, a reset link has been sent."
 
 
 from django.shortcuts import render

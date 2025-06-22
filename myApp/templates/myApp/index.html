@@ -362,6 +362,69 @@
     </div>
 </section>
 <!--== End Testimonial Area Wrapper ==-->
+<aside class="product-quick-view-modal" id="productQuickView">
+    <div id="quickViewLoader" style="display:none; text-align:center; padding:2rem;">
+        <i class="fa fa-spinner fa-spin fa-2x"></i>
+        <p>Loading product details...</p>
+    </div>
+    
+    <div class="product-quick-view-inner">
+        <div class="product-quick-view-content">
+            <!-- Close Button -->
+            <button type="button" class="btn-close" onclick="closeQuickView()">
+                <span class="close-icon"><i class="fa fa-close"></i></span>
+            </button>
+
+            <div class="row align-items-center">
+                <!-- Product Image -->
+                <div class="col-lg-6 col-md-6 col-12">
+                    <div class="thumb">
+                        <img id="quick-view-image" src="" width="570" height="541" alt="Product Image">
+                    </div>
+                </div>
+
+                <!-- Product Details -->
+                <div class="col-lg-6 col-md-6 col-12">
+                    <div class="content">
+                        <h4 class="title" id="quick-view-title"></h4>
+                        <div class="prices">
+                            <del class="price-old" id="quick-view-old-price"></del>
+                            <span class="price" id="quick-view-price"></span>
+                        </div>
+                        <p id="quick-view-description"></p>
+
+                        <!-- Dropdowns for Size and Color -->
+                        <div class="quick-view-select">
+                            <div class="quick-view-select-item">
+                                <label for="quickViewSize" class="form-label">Size:</label>
+                                <select class="form-select" id="quickViewSize">
+                                    <option value="">Select a size</option>
+                                </select>
+                            </div>
+                            <div class="quick-view-select-item">
+                                <label for="quickViewColor" class="form-label">Color:</label>
+                                <select class="form-select" id="quickViewColor">
+                                    <option value="">Select a color</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Quantity & Add to Cart Button -->
+                        <div class="action-top">
+                            <div class="pro-qty">
+                                <input type="text" id="quick-view-quantity" title="Quantity" value="1" />
+                            </div>
+                            <button class="quick-add-to-cart btn btn-black">Add to cart</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay to close the modal -->
+    <div class="canvas-overlay" onclick="closeQuickView()"></div>
+</aside>
 
 
         </main>

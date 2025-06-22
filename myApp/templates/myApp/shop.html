@@ -1,6 +1,14 @@
 {% extends 'myApp/base.html' %}
 {% block content %}
 {% load static %}
+<style>
+    .search-result-message {
+        font-size: 18px;
+        color: #571021;
+        font-weight: 500;
+    }
+    </style>
+    
 
 <div class="wrapper">
     
@@ -31,6 +39,15 @@
         <!--== Start Product Area Wrapper ==-->
         <section class="product-area product-default-area">
             <div class="container">
+                {% if query %}
+                    <div class="row">
+                        <div class="col-12">
+                            <p class="search-result-message text-center mt-3 mb-4">
+                                Showing results for <strong>"{{ query }}"</strong>
+                            </p>
+                        </div>
+                    </div>
+                {% endif %}
                 <div class="row flex-xl-row-reverse justify-content-between">
                     <div class="col-xl-9">
                         <div class="row">
@@ -141,32 +158,32 @@
                             <div class="shop-sidebar-price-range">
                                 <h4 class="sidebar-title">Price Filter</h4>
                                 <div class="sidebar-price-range">
-                                    <div id="price-range"></div>
-                                </div>
-                            </div>
-                    
-                            <!-- Color Options (Static, Can be fetched from DB if needed) -->
-                            <div class="shop-sidebar-color">
-                                <h4 class="sidebar-title">Color</h4>
-                                <div class="sidebar-color">
-                                    <ul class="color-list">
-                                        <li style="background-color: #39ed8c;" class="active"></li>
-                                        <li style="background-color: #a6ed42;"></li>
-                                        <li style="background-color: #daed39;"></li>
-                                        <li style="background-color: #eed739;"></li>
-                                        <li style="background-color: #eca23a;"></li>
-                                        <li style="background-color: #f36768;"></li>
-                                        <li style="background-color: #e14755;"></li>
-                                        <li style="background-color: #dc83a3;"></li>
-                                        <li style="background-color: #dc82da;"></li>
-                                        <li style="background-color: #9a82dd;"></li>
-                                        <li style="background-color: #82c2db;"></li>
-                                        <li style="background-color: #6bd6b0;"></li>
-                                        <li style="background-color: #9ed76b;"></li>
-                                        <li style="background-color: #c8c289;"></li>
+                                    <ul class="category-list">
+                                        {% for price_range in price_ranges %}
+                                            <li>
+                                                <a href="{% url 'shop' %}?price_range={{ price_range }}">
+                                                    {{ price_range }}
+                                                </a>
+                                            </li>
+                                        {% empty %}
+                                            <li>No price ranges found</li>
+                                        {% endfor %}
                                     </ul>
                                 </div>
                             </div>
+                            
+                    
+                            <!-- Color Options (Static, Can be fetched from DB if needed) -->
+                            <ul class="color-list">
+                                {% for color in colors %}
+                                    <li style="background-color: {{ color.hex_code }};">
+                                        <a href="{% url 'shop' %}?color={{ color.id }}" class="d-block w-100 h-100" title="{{ color.name }}"></a>
+                                    </li>
+                                {% empty %}
+                                    <li>No colors found</li>
+                                {% endfor %}
+                            </ul>
+                            
                     
                             <!-- Size Options (Static, Can be made dynamic if needed) -->
                             <div class="shop-sidebar-size">
@@ -187,23 +204,7 @@
                             </div>
                             
                     
-                            <!-- Dynamic Brands -->
-                            <div class="shop-sidebar-brand">
-                                <h4 class="sidebar-title">Brand</h4>
-                                <div class="sidebar-brand">
-                                    <ul class="brand-list mb--0">
-                                        {% for brand in brands %}
-                                            <li>
-                                                <a href="{% url 'shop' %}?brand={{ brand.id }}">
-                                                    {{ brand.name }} 
-                                                </a>
-                                            </li>
-                                        {% empty %}
-                                            <li>No brands available</li>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-                            </div>
+                            
                         </div>
                     </div>
                     
