@@ -42,19 +42,37 @@
                                 <div class="swiper-container single-product-thumb single-product-thumb-slider">
                                     <div class="swiper-wrapper">
                                         
-                                        <div class="swiper-slide">
-                                            <a class="lightbox-image" data-fancybox="gallery" href="{{ product.get_image_url }}">                                                <img src="{{ product.image.url }}" width="570" height="541" alt="{{ product.name }}">
-                                            </a>
-                                        </div>
+                                                                    {% for img in product.gallery_images.all %}
+                            <div class="swiper-slide">
+                            <a class="lightbox-image" data-fancybox="gallery" href="{{ img.image.url }}">
+                                <img src="{{ img.image.url }}" width="570" height="541" alt="{{ img.alt_text|default:product.name }}">
+                            </a>
+                            </div>
+                            {% empty %}
+                            <!-- Fallback to main image if no gallery images -->
+                            <div class="swiper-slide">
+                            <a class="lightbox-image" data-fancybox="gallery" href="{{ product.image.url }}">
+                                <img src="{{ product.image.url }}" width="570" height="541" alt="{{ product.name }}">
+                            </a>
+                            </div>
+                            {% endfor %}
+
                                     
                                     </div>
                                 </div>
                                 <div class="swiper-container single-product-nav single-product-nav-slider">
                                     <div class="swiper-wrapper">
                                     
+                                        {% for img in product.gallery_images.all %}
                                         <div class="swiper-slide">
-                                            <img src="{{ product.image.url }}" width="127" height="127" alt="{{ product.name }}">
+                                        <img src="{{ img.image.url }}" width="127" height="127" alt="{{ img.alt_text|default:product.name }}">
                                         </div>
+                                        {% empty %}
+                                        <div class="swiper-slide">
+                                        <img src="{{ product.image.url }}" width="127" height="127" alt="{{ product.name }}">
+                                        </div>
+                                        {% endfor %}
+
                                         
                                     </div>
                                 </div>
@@ -106,7 +124,10 @@
                                             <input type="number" title="Quantity" value="1" min="1">
                                         </div>
                                     </div>
-                                    <button class="btn-theme" id="addToCartBtn" data-product-id="{{ product.id }}">Add to Cart</button>
+                                    <a href="javascript:void(0);" class="btn-theme quick-add-to-cart" data-product-id="{{ product.id }}">
+                                        <i class="fa fa-shopping-cart me-1"></i> Add to Cart
+                                      </a>
+                                      
                                 </div>
                                 <!--      
                                 <div class="product-wishlist-compare">

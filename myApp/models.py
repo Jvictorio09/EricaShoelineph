@@ -103,6 +103,20 @@ class Product(models.Model):
     def get_average_rating(self):
         average = self.reviews.aggregate(Avg('rating'))['rating__avg']
         return round(average, 1) if average else 0
+    
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="gallery_images")
+    image = CloudinaryField('image', folder="ericashoeline/product_gallery/")
+    alt_text = models.CharField(max_length=255, blank=True, help_text="Optional: Describe the image for SEO")
+
+    def __str__(self):
+        return f"Image for {self.product.name}"
+    
+    def clean(self):
+        if self.product.gallery_images.count() >= 5 and not self.pk:
+            raise ValidationError("You can only upload up to 5 images per product.")
+    
+
 
 # ----------------------------------------
 # CART & CARTITEM MODEL

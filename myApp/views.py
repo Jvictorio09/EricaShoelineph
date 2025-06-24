@@ -1053,3 +1053,168 @@ def export_orders_to_csv(request):
         ])
 
     return response
+
+
+
+
+from django.shortcuts import render
+from .models import Category
+
+def category_admin_view(request):
+    categories = Category.objects.all()
+    return render(request, 'admin/category_list.html', {'categories': categories})
+
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from .models import Category
+from .forms import CategoryForm
+
+@require_POST
+def toggle_homepage(request):
+    category_id = request.POST.get("id")
+    category = Category.objects.get(id=category_id)
+
+    # Enforce max 3 rule
+    if not category.show_on_homepage and Category.objects.filter(show_on_homepage=True).count() >= 3:
+        return JsonResponse({"success": False, "message": "🚫 Max 3 categories can be shown on homepage."})
+
+    category.show_on_homepage = not category.show_on_homepage
+    category.save()
+    return JsonResponse({"success": True, "status": category.show_on_homepage})
+
+@require_POST
+def save_category(request):
+    category_id = request.POST.get("id")
+    if category_id:
+        category = Category.objects.get(id=category_id)
+        form = CategoryForm(request.POST, request.FILES, instance=category)
+    else:
+        form = CategoryForm(request.POST, request.FILES)
+
+    if form.is_valid():
+        saved = form.save()
+        return JsonResponse({
+            "success": True,
+            "id": saved.id,
+            "name": saved.name,
+            "image": saved.image.url,
+            "status": saved.show_on_homepage
+        })
+    return JsonResponse({"success": False, "errors": form.errors})
+
+@require_POST
+def delete_category(request):
+    category_id = request.POST.get("id")
+    Category.objects.filter(id=category_id).delete()
+    return JsonResponse({"success": True})
+
+
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from .models import Product, Category
+from django.forms.models import model_to_dict
+
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from .models import Product, Category
+
+def category_products(request, category_id):
+    category = Category.objects.get(id=category_id)
+    products = Product.objects.filter(category=category)
+
+    product_data = []
+    for p in products:
+        product_data.append({
+            "id": p.id,
+            "name": p.name,
+            "description": p.description,  # 👈 Add this line
+            "price": str(p.price),
+            "discount_price": str(p.discount_price) if p.discount_price else None,
+            "image": p.image.url if p.image else "",
+            "best_seller": p.best_seller,
+            "price_range": p.price_range,
+            "sizes": [size.name for size in p.sizes.all()],
+            "colors": [color.name for color in p.colors.all()],
+        })
+
+    return JsonResponse({
+        "category": category.name,
+        "products": product_data
+    })
+
+
+
+@require_POST
+def save_product(request):
+    from .forms import ProductForm
+
+    product_id = request.POST.get("id")
+    instance = Product.objects.get(id=product_id) if product_id else None
+
+    form = ProductForm(request.POST, request.FILES, instance=instance)
+    if form.is_valid():
+        product = form.save()
+        return JsonResponse({
+            "success": True,
+            "id": product.id,
+            "name": product.name,
+            "price": str(product.price),
+            "image": product.image.url
+        })
+    return JsonResponse({"success": False, "errors": form.errors})
+
+@require_POST
+def delete_product(request):
+    product_id = request.POST.get("id")
+    Product.objects.filter(id=product_id).delete()
+    return JsonResponse({"success": True})
+
+
+from django.views.decorators.http import require_GET
+
+@require_GET
+def get_product(request, product_id):
+    try:
+        product = Product.objects.get(id=product_id)
+        return JsonResponse({
+            "id": product.id,
+            "name": product.name,
+            "description": product.description,
+            "price": str(product.price),
+            "discount_price": str(product.discount_price) if product.discount_price else None,
+            "best_seller": product.best_seller,
+            "price_range": product.price_range,
+            "sizes": list(product.sizes.values_list('id', flat=True)),
+            "colors": list(product.colors.values_list('id', flat=True)),
+        })
+    except Product.DoesNotExist:
+        return JsonResponse({"error": "Product not found."}, status=404)
+
+
+from django.http import JsonResponse
+from .models import Product
+
+def get_product_detail(request, product_id):
+    try:
+        product = Product.objects.get(id=product_id)
+        images = [product.image.url]  # Main image first
+
+        # Add gallery images
+        images += [img.image.url for img in product.gallery_images.all()]
+
+        data = {
+            "name": product.name,
+            "price": str(product.get_price()),
+            "discount_price": str(product.discount_price) if product.discount_price else None,
+            "description": product.description or "",
+            "images": images,
+            "sizes": [size.name for size in product.sizes.all()],
+            "colors": [color.name for color in product.colors.all()],
+        }
+        return JsonResponse(data)
+
+    except Product.DoesNotExist:
+        return JsonResponse({"error": "Product not found"}, status=404)

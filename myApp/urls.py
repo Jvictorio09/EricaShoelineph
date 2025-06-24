@@ -30,6 +30,8 @@ urlpatterns = [
     path("login/", views.login_view, name="login"),
     path("logout/", views.logout_view, name="logout"),
 
+    
+
     path( 'password-reset/', PasswordResetView.as_view(), name= 'password_reset'),
     
     path( 'apply-coupon/', views.apply_coupon, name= 'apply_coupon'),
@@ -54,5 +56,15 @@ urlpatterns = [
 
     path('orders/<int:order_id>/delete/', views.delete_order, name='delete_order'),
     path('orders/export/csv/', views.export_orders_to_csv, name='export_orders_to_csv'),
+    path('categories/', views.category_admin_view, name='category_admin_view'),
+    path('categories/toggle/', views.toggle_homepage, name='toggle_homepage'),
+    path('categories/save/', views.save_category, name='save_category'),
+    path('categories/delete/', views.delete_category, name='delete_category'),
+    path('category/<int:category_id>/products/', views.category_products, name='category_products'),
 
+    path('category/<int:category_id>/products/', views.category_products, name='category_products'),
+    path('products/save/', views.save_product, name='save_product'),
+    path('products/delete/', views.delete_product, name='delete_product'),
+    path('products/<int:product_id>/get/', views.get_product, name='get_product'),
+    path('products/<int:product_id>/get/', views.get_product_detail, name='get_product_detail'),
 ]

@@ -4,6 +4,9 @@ from .models import (
     Product, Category, Size, Color, Blog, Tag, SpecialOffer,
     Feature, ProductCollection, Testimonial, AboutSection
 )
+from django.utils.safestring import mark_safe
+from .models import Product, ProductImage  # Add ProductImage if not yet imported
+
 
 # ---- CATEGORY ADMIN ----
 
@@ -92,24 +95,54 @@ class ColorAdmin(admin.ModelAdmin):
 
     hex_code_display.short_description = "Color Preview"
 
+class ProductImageInline(admin.TabularInline):  # You can also use StackedInline
+    model = ProductImage
+    extra = 1
+    max_num = 5
+    fields = ('image', 'alt_text', 'preview')
+    readonly_fields = ('preview',)
+
+    def preview(self, obj):
+        if obj.image:
+            return mark_safe(f'<img src="{obj.image.url}" width="80" style="border-radius:5px;" />')
+        return "No Image"
+
+    preview.short_description = "Preview"
+
+
 # ---- PRODUCT ADMIN ----
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ("name", "category", "price", "discount_price", "best_seller", "price_range", "get_sizes", "get_colors")
-    search_fields = ("name", "category__name", "price_range")  # Adding price_range to search
-    list_filter = ("category", "best_seller", "sizes", "colors", "price_range")  # Adding price_range to filter options
+    search_fields = ("name", "category__name", "price_range")
+    list_filter = ("category", "best_seller", "sizes", "colors", "price_range")
     autocomplete_fields = ("category",)
     filter_horizontal = ("sizes", "colors")
+    inlines = [ProductImageInline]  # ✅ Add this line
 
     def get_sizes(self, obj):
         return ", ".join(size.name for size in obj.sizes.all())
-
     get_sizes.short_description = "Available Sizes"
 
     def get_colors(self, obj):
         return ", ".join(color.name for color in obj.colors.all())
-
     get_colors.short_description = "Available Colors"
+
+
+class ProductImageInline(admin.TabularInline):  # You can also use StackedInline
+    model = ProductImage
+    extra = 1
+    max_num = 5
+    fields = ('image', 'alt_text', 'preview')
+    readonly_fields = ('preview',)
+
+    def preview(self, obj):
+        if obj.image:
+            return mark_safe(f'<img src="{obj.image.url}" width="80" style="border-radius:5px;" />')
+        return "No Image"
+
+    preview.short_description = "Preview"
+
 
 
 @admin.register(Size)
@@ -177,3 +210,5 @@ class TestimonialAdmin(admin.ModelAdmin):
 class AboutSectionAdmin(admin.ModelAdmin):
     list_display = ['title', 'order', 'is_reversed']
     ordering = ['order']
+
+

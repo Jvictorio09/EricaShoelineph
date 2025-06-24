@@ -1,0 +1,366 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Categories</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body class="container py-5">
+
+<h2 class="mb-4">📌 Category Manager</h2>
+<button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#categoryModal" onclick="openCategoryModal()">➕ Add Category</button>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Image</th>
+            <th>Name</th>
+            <th>Homepage</th>
+            <th>Main Banner</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="categoryTable">
+        {% for category in categories %}
+        <tr data-id="{{ category.id }}">
+            <td><img src="{{ category.image.url }}" width="60"></td>
+            <td><a href="#" onclick="loadProducts({{ category.id }}, '{{ category.name }}')">{{ category.name }}</a></td>
+            <td>
+                <button class="btn btn-sm {% if category.show_on_homepage %}btn-primary{% else %}btn-outline-primary{% endif %} toggle-homepage">{{ category.show_on_homepage|yesno:"Yes,No" }}</button>
+            </td>
+            <td>{{ category.is_main_header|yesno:"Yes,No" }}</td>
+            <td>
+                <button class="btn btn-warning btn-sm" onclick="editCategory({{ category.id }})">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteCategory({{ category.id }})">Delete</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Product List Modal -->
+<div class="modal fade" id="productListModal" tabindex="-1" aria-labelledby="productListModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">🛍️ Products in <span id="selectedCategory"></span></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <button id="addProductBtn" class="btn btn-primary mb-3" onclick="openProductModal()">➕ Add Product</button>
+          <table class="table table-striped" id="productTable">
+            <thead>
+                <tr>
+                  <th>Image</th>
+                  <th>Name</th>
+                  <th>Description</th>
+                  <th>Category</th>
+                  <th>Price</th>
+                  <th>Discount Price</th>
+                  <th>Best Seller</th>
+                  <th>Price Range</th>
+                  <th>Sizes</th>
+                  <th>Colors</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+<!-- Category Modal -->
+<div class="modal fade" id="categoryModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="categoryForm">
+        <div class="modal-header">
+          <h5 class="modal-title">Category</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="id" id="categoryId">
+          <div class="mb-3">
+            <label>Name</label>
+            <input type="text" name="name" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label>Discount Text</label>
+            <input type="text" name="discount_text" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label>Image</label>
+            <input type="file" name="image" class="form-control">
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="is_main_header" id="mainHeader">
+            <label class="form-check-label" for="mainHeader">Main Banner</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="show_on_homepage" id="showHomepage">
+            <label class="form-check-label" for="showHomepage">Show on Homepage</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Product Modal -->
+<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content shadow rounded-4">
+        <div class="modal-header bg-light border-0">
+          <h5 class="modal-title fw-bold" id="productModalLabel">🛍️ Add / Edit Product</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+  
+        <form id="productForm" class="p-4">
+          <input type="hidden" name="id">
+          <input type="hidden" name="category" id="productCategoryId">
+  
+          <div class="row g-4">
+            <div class="col-md-6">
+              <label class="form-label">Name</label>
+              <input type="text" name="name" class="form-control" required>
+            </div>
+  
+            <div class="col-md-6">
+              <label class="form-label">Price</label>
+              <input type="number" step="0.01" name="price" class="form-control" required>
+            </div>
+  
+            <div class="col-md-6">
+              <label class="form-label">Discount Price</label>
+              <input type="number" step="0.01" name="discount_price" class="form-control">
+            </div>
+  
+            <div class="col-md-6">
+              <label class="form-label">Price Range</label>
+              <select name="price_range" class="form-select">
+                <option value="">Select Range</option>
+                <option value="500-1000">₱500 - ₱1,000</option>
+                <option value="1000-2000">₱1,000 - ₱2,000</option>
+                <option value="3000-5000">₱3,000 - ₱5,000</option>
+              </select>
+            </div>
+  
+            <div class="col-md-12">
+              <label class="form-label">Description</label>
+              <textarea name="description" class="form-control" rows="3"></textarea>
+            </div>
+  
+            <div class="col-md-6">
+              <label class="form-label">Available Sizes</label>
+              <select name="sizes" class="form-select" multiple>
+                {% for size in sizes %}
+                  <option value="{{ size.id }}">{{ size.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+  
+            <div class="col-md-6">
+              <label class="form-label">Product Image</label>
+              <input type="file" name="image" class="form-control">
+            </div>
+  
+            <div class="col-md-12">
+              <label class="form-label d-block mb-2">Available Colors</label>
+              <div class="row g-2">
+                {% for color in colors %}
+                <div class="col-6 col-md-4 d-flex align-items-center">
+                  <input type="checkbox" name="colors[]" value="{{ color.id }}" id="color_{{ color.id }}" class="form-check-input me-2">
+                  <label for="color_{{ color.id }}" class="d-flex align-items-center w-100">
+                    <span style="width:20px; height:20px; border-radius:4px; background-color: {{ color.hex_code }}; margin-right:8px; border:1px solid #ccc;"></span>
+                    {{ color.name }}
+                  </label>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+  
+            <div class="col-md-12">
+              <div class="form-check mt-3">
+                <input type="checkbox" class="form-check-input" name="best_seller" id="bestSellerCheck">
+                <label for="bestSellerCheck" class="form-check-label fw-medium">⭐ Mark as Best Seller</label>
+              </div>
+            </div>
+          </div>
+  
+          <div class="modal-footer border-0 mt-4">
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">💾 Save Product</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+
+<script>
+function loadProducts(categoryId, categoryName) {
+  $('#selectedCategory').text(categoryName);
+  $('#productCategoryId').val(categoryId);
+  $('#productTable tbody').empty();
+
+  $.get(`/category/${categoryId}/products/`, function(data) {
+  $('#productTable tbody').empty();
+  data.products.forEach(product => {
+        $('#productTable tbody').append(`
+    <tr>
+        <td><img src="${product.image}" width="50"></td>
+        <td>${product.name}</td>
+        <td title="${product.description || ''}">
+        ${product.description ? product.description.slice(0, 50) + '…' : '-'}
+        </td>
+
+        <td>${categoryName}</td>
+        <td>₱${parseFloat(product.price).toFixed(2)}</td>
+        <td>${product.discount_price ? `₱${parseFloat(product.discount_price).toFixed(2)}` : '-'}</td>
+        <td>${product.best_seller ? '⭐ Yes' : 'No'}</td>
+        <td>${product.price_range || '-'}</td>
+        <td>${(product.sizes || []).join(', ')}</td>
+        <td>${(product.colors || []).join(', ')}</td>
+        <td>
+        <button class="btn btn-sm btn-warning" onclick="editProduct(${product.id})">Edit</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteProduct(${product.id})">Delete</button>
+        </td>
+    </tr>`);
+
+  });
+
+    // ✅ Show the modal after products are loaded
+    const modal = new bootstrap.Modal(document.getElementById('productListModal'));
+    modal.show();
+  });
+}
+
+function openCategoryModal() {
+    $('#categoryForm')[0].reset();
+    $('#categoryId').val('');
+    $('#categoryModal').modal('show');
+}
+
+function editCategory(id) {
+    const row = $(`tr[data-id='${id}']`);
+    $('#categoryId').val(id);
+    $('input[name="name"]').val(row.find('td:nth-child(2)').text());
+    $('input[name="is_main_header"]').prop('checked', row.find('td:nth-child(4)').text().trim() === 'Yes');
+    $('input[name="show_on_homepage"]').prop('checked', row.find('td:nth-child(3) button').text().trim() === 'Yes');
+    $('#categoryModal').modal('show');
+}
+
+function deleteCategory(id) {
+    if (confirm('Delete this category?')) {
+        $.post("{% url 'delete_category' %}", { id: id, csrfmiddlewaretoken: '{{ csrf_token }}' }, function(resp) {
+            if (resp.success) location.reload();
+        });
+    }
+}
+
+$('#categoryForm').on('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+    $.ajax({
+        url: '{% url "save_category" %}',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(resp) {
+            if (resp.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + JSON.stringify(resp.errors));
+            }
+        }
+    });
+});
+
+$('.toggle-homepage').on('click', function() {
+    const id = $(this).closest('tr').data('id');
+    $.post("{% url 'toggle_homepage' %}", { id: id, csrfmiddlewaretoken: '{{ csrf_token }}' }, function(resp) {
+        if (resp.success) location.reload();
+        else alert(resp.message);
+    });
+});
+
+function openProductModal() {
+  $('#productForm')[0].reset();
+  $('input[name="id"]').val('');
+  $('#productModal').modal('show');
+}
+
+function editProduct(id) {
+  $.get(`/products/${id}/get/`, function(product) {
+    $('input[name="id"]').val(product.id);
+    $('input[name="name"]').val(product.name);
+    $('textarea[name="description"]').val(product.description);
+    $('input[name="price"]').val(product.price);
+    $('input[name="discount_price"]').val(product.discount_price || '');
+    $('select[name="price_range"]').val(product.price_range);
+    $('input[name="best_seller"]').prop('checked', product.best_seller);
+
+    // ✅ Set sizes (multi-select)
+    $('select[name="sizes"] option').each(function () {
+      const optionVal = parseInt($(this).val());
+      $(this).prop('selected', product.sizes.includes(optionVal));
+    });
+
+    // ✅ Set colors (checkboxes)
+    $('input[name="colors[]"]').each(function () {
+      const checkboxVal = parseInt($(this).val());
+      $(this).prop('checked', product.colors.includes(checkboxVal));
+    });
+
+    $('#productModal').modal('show');
+  });
+}
+
+
+
+$('#productForm').on('submit', function(e) {
+  e.preventDefault();
+  const formData = new FormData(this);
+  formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+  $.ajax({
+    url: '{% url "save_product" %}',
+    type: 'POST',
+    data: formData,
+    processData: false,
+    contentType: false,
+    success: function(resp) {
+      if (resp.success) {
+        $('#productModal').modal('hide');
+        loadProducts($('#productCategoryId').val(), $('#selectedCategory').text());
+      } else {
+        alert('Error: ' + JSON.stringify(resp.errors));
+      }
+    }
+  });
+});
+
+function deleteProduct(id) {
+  if (confirm('Delete this product?')) {
+    $.post("{% url 'delete_product' %}", { id: id, csrfmiddlewaretoken: '{{ csrf_token }}' }, function(resp) {
+      if (resp.success) {
+        loadProducts($('#productCategoryId').val(), $('#selectedCategory').text());
+      }
+    });
+  }
+}
+</script>
+
+</body>
+</html>
