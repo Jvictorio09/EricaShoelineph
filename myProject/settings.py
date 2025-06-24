@@ -156,8 +156,8 @@ EMAIL_PORT = env.int("EMAIL_PORT", default=587)
 EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
 EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
 ADMIN_EMAIL = env("EMAIL_HOST_USER", default="")
-EMAIL_HOST_PASSWORD = "mblp jrfr vfyi zvlv"
-#EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+#EMAIL_HOST_PASSWORD = "mblp jrfr vfyi zvlv"
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default=EMAIL_HOST_USER)
 
 

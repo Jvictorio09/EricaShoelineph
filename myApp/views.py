@@ -963,7 +963,7 @@ Best regards,
     email = EmailMultiAlternatives(
         subject,
         text_body,
-        from_email="juliavictorio16@gmail.com",  # Or settings.DEFAULT_FROM_EMAIL
+        from_email="erica.shoelineph@gmail.com",  # Or settings.DEFAULT_FROM_EMAIL
         to=[order.email],
     )
     email.attach_alternative(html_body, "text/html")
